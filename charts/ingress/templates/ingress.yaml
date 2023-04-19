@@ -10,7 +10,8 @@ spec:
   ingressClassName: {{ .Values.ingress.className }}
   rules:
     {{- range .Values.ingress.hosts }}
-    - http:
+    - host: {{ .host }}
+      http:
         paths:
           {{- range .paths }}
           - path: {{ .path | quote }}
@@ -21,7 +22,4 @@ spec:
                 port:
                   number: {{ .servicePort }}
           {{- end }}
-      {{ if .host }}
-      host: {{ .host }}
-      {{ end }}
     {{- end }}
