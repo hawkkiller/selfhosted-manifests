@@ -1,2 +1,13 @@
 ingress:
-  host: ""
+  className: ""
+  namespace: "default"
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: example.com
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+          serviceName: ""
+          servicePort: 80

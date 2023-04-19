@@ -1,18 +1,26 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: mychart-ingress
+  name: {{ .Values.ingress.name }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: /
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  namespace: {{ .Values.ingress.namespace }}
 spec:
+  ingressClassName: {{ .Values.ingress.className }}
   rules:
-  - host: {{ .Values.ingress.host }}
-    http:
-      paths:
-      - path: /mychart
-        pathType: Prefix
-        backend:
-          service:
-            name: mychart
-            port:
-              name: http
+    {{- range .Values.ingress.hosts }}
+    - host: {{ .host }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path | quote }}
+            pathType: {{ .pathType }}
+            backend:
+              service:
+                name: {{ .serviceName | quote }}
+                port:
+                  number: {{ .servicePort }}
+          {{- end }}
+    {{- end }}
