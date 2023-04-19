@@ -1,5 +1,6 @@
 ingress:
   className: ""
+  name: "ingress"
   namespace: "default"
   annotations: {}
     # kubernetes.io/ingress.class: nginx
