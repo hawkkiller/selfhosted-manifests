@@ -13,10 +13,12 @@ spec:
     spec:
       containers:
       - name: sampleapp
-        image: ealen/echo-server:0.7.0
+        image: gcr.io/google_containers/echoserver:1.0
         resources:
           limits:
             memory: "128Mi"
-            cpu: "10m"
+            cpu: "20m"
         ports:
-        - containerPort: 80
+        - name: http
+          containerPort: 8080
+          protocol: TCP
