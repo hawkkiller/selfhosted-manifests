@@ -7,4 +7,4 @@ spec:
     app: sampleapp
   ports:
   - port: 8686
-    targetPort: 8080
+    targetPort: 80
