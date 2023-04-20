@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
-metadata: {{ $fullname := printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" }}
-  name: {{ $fullname }}
+metadata:
+  name: chat-gpt
   labels:
-    app: {{ $fullname }}
+    app: chat-gpt
     chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
@@ -15,5 +15,5 @@ spec:
       targetPort: http
       protocol: TCP
   selector:
-    app: {{ $fullname }}
+    app: chat-gpt
     release: {{ .Release.Name }}
