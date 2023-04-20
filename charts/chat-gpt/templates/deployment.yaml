@@ -23,4 +23,4 @@ spec:
               containerPort: {{ .Values.container.port | int }}
               protocol: TCP
           resources:
-{{ toYaml .Values.resources | indent 10 }}
+{{ toYaml .Values.resources | indent 12 }}
