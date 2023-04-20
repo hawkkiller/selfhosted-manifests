@@ -3,6 +3,16 @@ entries:
   chat-gpt:
   - apiVersion: v2
     appVersion: 1.9.9
+    created: "2023-04-20T19:06:43.819197557Z"
+    description: A Helm chart for Kubernetes
+    digest: 8ad0ef9c0bb4fc91aab2939cbfcc428024f9516b7e032c6cd8116c4662317263
+    name: chat-gpt
+    type: application
+    urls:
+    - https://github.com/hawkkiller/selfhosted-manifests/releases/download/chat-gpt-0.2.0/chat-gpt-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
+    appVersion: 1.9.9
     created: "2023-04-20T16:14:40.660277797Z"
     description: A Helm chart for Kubernetes
     digest: 92d3412267ad8652d920a5cd2346ad43e00984497626f83f22ff2565a80c7f6d
@@ -82,4 +92,4 @@ entries:
     urls:
     - https://github.com/hawkkiller/selfhosted-manifests/releases/download/ingress-0.2.0/ingress-0.2.0.tgz
     version: 0.2.0
-generated: "2023-04-20T16:14:40.660293797Z"
+generated: "2023-04-20T19:06:43.819214157Z"
