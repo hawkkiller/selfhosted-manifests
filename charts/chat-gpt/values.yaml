@@ -2,7 +2,7 @@ container:
   replicaCount: 1
   port: 80
   image: yidadaa/chatgpt-next-web
-  imageTag: 1.9.9
+  imageTag: v1.9.9
   imagePullPolicy: Always
 
 service:
