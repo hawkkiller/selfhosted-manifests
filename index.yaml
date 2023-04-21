@@ -74,6 +74,16 @@ entries:
   ingress:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2023-04-21T08:06:52.875923255Z"
+    description: A Helm chart for Kubernetes
+    digest: 8b73739aa09df19b8f97b85b94c1aa2fa002f4ea372d15713cfb7d63bdccbc20
+    name: ingress
+    type: application
+    urls:
+    - https://github.com/hawkkiller/selfhosted-manifests/releases/download/ingress-0.10.0/ingress-0.10.0.tgz
+    version: 0.10.0
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2023-04-21T07:14:38.172970736Z"
     description: A Helm chart for Kubernetes
     digest: ed603d2b23d062080a443028783055c4fe14047a109d1860e7024b7f48099554
@@ -152,4 +162,4 @@ entries:
     urls:
     - https://github.com/hawkkiller/selfhosted-manifests/releases/download/ingress-0.2.0/ingress-0.2.0.tgz
     version: 0.2.0
-generated: "2023-04-21T07:14:38.173010337Z"
+generated: "2023-04-21T08:06:52.877302846Z"
