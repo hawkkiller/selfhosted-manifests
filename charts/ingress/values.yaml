@@ -1,6 +1,5 @@
 ingress:
   className: ""
-  name: "ingress"
   annotations:
     {}
     # kubernetes.io/ingress.class: nginx
