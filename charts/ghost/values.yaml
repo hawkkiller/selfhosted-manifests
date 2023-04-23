@@ -1,7 +1,6 @@
 ghost:
   nodeEnv: development
 
-
 service:
   type: ClusterIP
   port: 80

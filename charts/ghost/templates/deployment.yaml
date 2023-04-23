@@ -21,3 +21,5 @@ spec:
           env:
             - name: database__client
               value: {{ .Values.database.client }}
+            - name: NODE_ENV
+              value: {{ .Values.ghost.nodeEnv }}
