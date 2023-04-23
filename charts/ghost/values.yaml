@@ -1,0 +1,16 @@
+ghost:
+  nodeEnv: development
+
+
+service:
+  type: ClusterIP
+  port: 80
+
+container:
+  image:
+    repository: ghost
+    tag: 5.44.0-alpine
+    pullPolicy: IfNotPresent
+
+database:
+  client: sqlite
