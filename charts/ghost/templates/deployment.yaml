@@ -13,7 +13,7 @@ spec:
     spec:
       containers:
         - name: {{ .Release.Name }}
-          image: "{{ include "ghost.image" . }}"
+          image: "{{ .Values.container.image }}:{{ .Values.container.image.tag }}"
           imagePullPolicy: {{ .Values.container.image.pullPolicy }}
           ports:
             - containerPort: 2368
