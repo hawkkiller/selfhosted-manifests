@@ -15,6 +15,9 @@ spec:
         - name: {{ .Release.Name }}
           image: "{{ include "ghost.image" . }}"
           imagePullPolicy: {{ .Values.container.image.pullPolicy }}
+          volumeMounts:
+            - mountPath: {{ .Values.database.connection.mount }}
+              name: {{ .Release.Name }}-ephemeral-data
           ports:
             - containerPort: 2368
               name: http
@@ -23,3 +26,11 @@ spec:
               value: {{ .Values.database.client }}
             - name: NODE_ENV
               value: {{ .Values.ghost.nodeEnv }}
+              {{ if eq .Values.database.client "sqlite" }}
+            - name: database__connection__filename
+              value: {{ .Values.database.connection.filename }}
+              {{ end }}
+      volumes:
+        - name: {{ .Release.Name }}-ephemeral-data
+          csi:
+            driver: inline.storage.kubernetes.io

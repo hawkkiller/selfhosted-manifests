@@ -13,3 +13,6 @@ container:
 
 database:
   client: sqlite
+  connection:
+    filename: /var/lib/ghost/content/data/ghost.db
+    mount: /var/lib/ghost/content/data
