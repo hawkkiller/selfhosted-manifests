@@ -74,6 +74,16 @@ entries:
   ghost:
   - apiVersion: v2
     appVersion: 5.44.0
+    created: "2023-04-24T07:10:57.310047384Z"
+    description: A Helm chart for Kubernetes
+    digest: 6c4f3485c281e822b77d584d747a8272461ca25fc58a5a2b3cfee9bd8962e887
+    name: ghost
+    type: application
+    urls:
+    - https://github.com/hawkkiller/selfhosted-manifests/releases/download/ghost-0.8.0/ghost-0.8.0.tgz
+    version: 0.8.0
+  - apiVersion: v2
+    appVersion: 5.44.0
     created: "2023-04-23T20:30:04.21461942Z"
     description: A Helm chart for Kubernetes
     digest: ce908785f7e2abb295268edc8bd3a0a8d2bc21dcede7cc76239a8642b62306ec
@@ -233,4 +243,4 @@ entries:
     urls:
     - https://github.com/hawkkiller/selfhosted-manifests/releases/download/ingress-0.2.0/ingress-0.2.0.tgz
     version: 0.2.0
-generated: "2023-04-23T20:30:04.21467642Z"
+generated: "2023-04-24T07:10:57.310098484Z"
