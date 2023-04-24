@@ -2,19 +2,26 @@ ghost:
   nodeEnv: development
   timezone: UTC
   url: https://themisha.dev
-
-service:
-  type: ClusterIP
-  port: 80
-
-container:
   image:
     repository: ghost
     tag: 5.44.0-alpine
     pullPolicy: IfNotPresent
 
+litestream:
+  image:
+    repository: litestream/litestream
+    tag: latest
+    pullPolicy: IfNotPresent
+  awsSecretRef: aws-credentials
+  replicatePathS3: "litestream-replicate/ghost.db"
+
+service:
+  type: ClusterIP
+  port: 80
+
 database:
   client: sqlite3
+  size: "1Gi"
   connection:
     filename: /var/lib/ghost/content/data/ghost.db
     mount: /var/lib/ghost/content/data

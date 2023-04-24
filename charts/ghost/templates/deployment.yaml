@@ -1,8 +1,18 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ .Release.Name }}
 spec:
+  serviceName: {{ .Release.Name }}
+  replicas: 1
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-volume-claim
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.database.size }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}
@@ -11,13 +21,39 @@ spec:
       labels:
         app: {{ .Release.Name }}
     spec:
+      initContainers:
+        - name: {{ .Release.Name }}-litestream-restore
+          image: {{ include "litestream.image" . }}
+          args:
+            - "restore"
+            - "-if-not-exists"
+            - "-if-replica-exists"
+            - "-v"
+            - "-o"
+            - "{{ .Values.database.connection.filename }}"
+            - "{{ include "litestream.s3.path" }}"
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.litestream.awsSecretRef }}
+                  key: aws_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.litestream.awsSecretRef }}
+                  key: aws_secret_access_key
+          volumeMounts:
+            - mountPath: {{ .Values.database.connection.mount }}
+              name: {{ .Release.Name }}-data
+
       containers:
         - name: {{ .Release.Name }}
           image: "{{ include "ghost.image" . }}"
-          imagePullPolicy: {{ .Values.container.image.pullPolicy }}
+          imagePullPolicy: {{ .Values.ghost.image.pullPolicy }}
           volumeMounts:
             - mountPath: {{ .Values.database.connection.mount }}
-              name: {{ .Release.Name }}-ephemeral-data
+              name: {{ .Release.Name }}-data
           ports:
             - containerPort: 2368
               name: http
@@ -34,7 +70,29 @@ spec:
               value: {{ .Values.ghost.timezone }}
             - name: url
               value: {{ .Values.ghost.url }}
+
+        # sidecar litestream that replicates everything to S3 in the background
+        - name: {{ .Release.Name }}-litestream
+          image: {{ include "litestream.image" . }}
+          args:
+            - "replicate"
+            - "{{ .Values.database.connection.filename }}"
+            - {{ include "litestream.s3.path" }}
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.litestream.awsSecretRef }}
+                  key: aws_access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.litestream.awsSecretRef }}
+                  key: aws_secret_access_key
+          volumeMounts:
+            - mountPath: {{ .Values.database.connection.mount }}
+              name: {{ .Release.Name }}-data
       volumes:
-        - name: {{ .Release.Name }}-ephemeral-data
-          emptyDir:
-            sizeLimit: 500Mi
+        - name: {{ .Release.Name }}-data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-volume-claim
