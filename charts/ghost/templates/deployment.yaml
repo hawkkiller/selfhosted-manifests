@@ -30,6 +30,10 @@ spec:
             - name: database__connection__filename
               value: {{ .Values.database.connection.filename }}
               {{ end }}
+            - name: TZ
+              value: {{ .Values.ghost.timezone }}
+            - name: url
+              value: {{ .Values.ghost.url }}
       volumes:
         - name: {{ .Release.Name }}-ephemeral-data
           emptyDir:

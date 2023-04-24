@@ -1,5 +1,7 @@
 ghost:
   nodeEnv: development
+  timezone: UTC
+  url: https://themisha.dev
 
 service:
   type: ClusterIP
