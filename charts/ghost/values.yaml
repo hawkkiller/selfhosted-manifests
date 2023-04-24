@@ -12,7 +12,7 @@ container:
     pullPolicy: IfNotPresent
 
 database:
-  client: sqlite
+  client: sqlite3
   connection:
     filename: /var/lib/ghost/content/data/ghost.db
     mount: /var/lib/ghost/content/data

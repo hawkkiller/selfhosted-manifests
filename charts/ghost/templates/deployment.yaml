@@ -26,7 +26,7 @@ spec:
               value: {{ .Values.database.client }}
             - name: NODE_ENV
               value: {{ .Values.ghost.nodeEnv }}
-              {{ if eq .Values.database.client "sqlite" }}
+              {{ if eq .Values.database.client "sqlite3" }}
             - name: database__connection__filename
               value: {{ .Values.database.connection.filename }}
               {{ end }}
