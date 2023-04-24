@@ -19,6 +19,14 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   accessModes:
     - ReadWriteOnce
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - {{ .Release.Name }}
 ---
 apiVersion: apps/v1
 kind: StatefulSet
