@@ -1,3 +1,25 @@
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Release.Name }}-local-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Name }}-volume
+spec:
+  storageClassName: {{ .Release.Name }}-local-storage
+  capacity:
+    storage: {{ .Values.database.size }}
+  local:
+    path: {{ .Values.database.connection.mount }}
+  persistentVolumeReclaimPolicy: Retain
+  accessModes:
+    - ReadWriteOnce
+---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -9,7 +31,9 @@ spec:
     - metadata:
         name: {{ .Release.Name }}-volume-claim
       spec:
-        accessModes: [ "ReadWriteOnce" ]
+        storageClassName: {{ .Release.Name }}-local-storage
+        accessModes:
+           - ReadWriteOnce
         resources:
           requests:
             storage: {{ .Values.database.size }}
