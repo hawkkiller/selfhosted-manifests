@@ -35,16 +35,6 @@ metadata:
 spec:
   serviceName: {{ .Release.Name }}
   replicas: 1
-  volumeClaimTemplates:
-    - metadata:
-        name: {{ .Release.Name }}-volume-claim
-      spec:
-        storageClassName: {{ .Release.Name }}-local-storage
-        accessModes:
-           - ReadWriteOnce
-        resources:
-          requests:
-            storage: {{ .Values.database.size }}
   selector:
     matchLabels:
       app: {{ .Release.Name }}
@@ -77,7 +67,7 @@ spec:
                   key: aws_secret_access_key
           volumeMounts:
             - mountPath: {{ .Values.database.connection.mount }}
-              name: {{ .Release.Name }}-data
+              {{ .Release.Name }}-volume-claim
 
       containers:
         - name: {{ .Release.Name }}
@@ -85,7 +75,7 @@ spec:
           imagePullPolicy: {{ .Values.ghost.image.pullPolicy }}
           volumeMounts:
             - mountPath: {{ .Values.database.connection.mount }}
-              name: {{ .Release.Name }}-data
+              name: {{ .Release.Name }}-volume-claim
           ports:
             - containerPort: 2368
               name: http
@@ -123,8 +113,14 @@ spec:
                   key: aws_secret_access_key
           volumeMounts:
             - mountPath: {{ .Values.database.connection.mount }}
-              name: {{ .Release.Name }}-data
-      volumes:
-        - name: {{ .Release.Name }}-data
-          persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-volume-claim
+              name: {{ .Release.Name }}-volume-claim
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-volume-claim
+      spec:
+        storageClassName: {{ .Release.Name }}-local-storage
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: {{ .Values.database.size }}
