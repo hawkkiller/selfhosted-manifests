@@ -45,7 +45,7 @@ spec:
     spec:
       initContainers:
         - name: {{ .Release.Name }}-litestream-restore
-          image: {{ include "litestream.image" . }}
+          image: "{{ include "litestream.image" . }}"
           args:
             - "restore"
             - "-if-not-exists"
@@ -95,11 +95,11 @@ spec:
 
         # sidecar litestream that replicates everything to S3 in the background
         - name: {{ .Release.Name }}-litestream
-          image: {{ include "litestream.image" . }}
+          image: "{{ include "litestream.image" . }}"
           args:
             - "replicate"
             - "{{ .Values.database.connection.filename }}"
-            - {{ include "litestream.s3.path" . }}
+            - "{{ include "litestream.s3.path" . }}"
           env:
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
