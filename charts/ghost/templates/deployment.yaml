@@ -67,7 +67,7 @@ spec:
                   key: aws_secret_access_key
           volumeMounts:
             - mountPath: {{ .Values.database.connection.mount }}
-              name: {{ .Release.Name }}-volume-claim
+              name: {{ .Release.Name }}-volume-claim-ghost-0
 
       containers:
         - name: {{ .Release.Name }}
@@ -75,7 +75,7 @@ spec:
           imagePullPolicy: {{ .Values.ghost.image.pullPolicy }}
           volumeMounts:
             - mountPath: {{ .Values.database.connection.mount }}
-              name: {{ .Release.Name }}-volume-claim
+              name: {{ .Release.Name }}-volume-claim-ghost-0
           ports:
             - containerPort: 2368
               name: http
@@ -113,7 +113,7 @@ spec:
                   key: aws_secret_access_key
           volumeMounts:
             - mountPath: {{ .Values.database.connection.mount }}
-              name: {{ .Release.Name }}-volume-claim
+              name: {{ .Release.Name }}-volume-claim-ghost-0
   volumeClaimTemplates:
     - metadata:
         name: {{ .Release.Name }}-volume-claim
