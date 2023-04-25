@@ -44,7 +44,7 @@ spec:
         app: {{ .Release.Name }}
     spec:
       initContainers:
-        - name: {{ .Release.Name }}-litestream-restore
+        - name: "{{ .Release.Name }}-litestream-restore"
           image: "{{ include "litestream.image" . }}"
           args:
             - "restore"
@@ -67,7 +67,7 @@ spec:
                   key: aws_secret_access_key
           volumeMounts:
             - mountPath: {{ .Values.database.connection.mount }}
-              {{ .Release.Name }}-volume-claim
+              name: {{ .Release.Name }}-volume-claim
 
       containers:
         - name: {{ .Release.Name }}
