@@ -9,3 +9,7 @@
 {{- define "litestream.s3.path" -}}
 s3://{{- .Values.litestream.replicatePathS3 -}}
 {{- end -}}
+
+{{- define "mysql.image" -}}
+{{ .Values.database.mysql.image.repository }}:{{ .Values.database.mysql.image.tag }}
+{{- end -}}

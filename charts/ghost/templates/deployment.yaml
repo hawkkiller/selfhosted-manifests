@@ -74,6 +74,7 @@ spec:
         {{ end }}
 
       containers:
+        # Ghost
         - name: {{ .Release.Name }}
           image: "{{ include "ghost.image" . }}"
           imagePullPolicy: {{ .Values.ghost.image.pullPolicy }}
@@ -112,7 +113,27 @@ spec:
             - name: database__connection__database
               value: {{ .Values.database.mysql.database }}
               {{ end }}
-        {{ if .Values.database.sqlite3.enabled }}
+        # MySQL
+        {{ if .Values.database.mysql.enabled }}
+        - name: {{ .Release.Name }}-mysql
+          image: "{{ include "mysql.image" . }}"
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: {{ .Values.database.mysql.rootPassword }}
+            - name: MYSQL_DATABASE
+              value: {{ .Values.database.mysql.database }}
+            - name: MYSQL_USER
+              value: {{ .Values.database.mysql.user }}
+            - name: MYSQL_PASSWORD
+              value: {{ .Values.database.mysql.password }}
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - mountPath: {{ .Values.database.mysql.mount }}
+              name: {{ .Release.Name }}-volume-claim
+        {{ end }}
+        {{ if and .Values.database.sqlite3.enabled .Values.litestream.enabled }}
         # sidecar litestream that replicates everything to S3 in the background
         - name: {{ .Release.Name }}-litestream
           image: "{{ include "litestream.image" . }}"

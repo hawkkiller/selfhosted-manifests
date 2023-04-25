@@ -30,9 +30,15 @@ database:
       mount: /var/lib/ghost/content/data
   mysql:
     enabled: true
+    image:
+      repository: mysql
+      tag: 8.0.33-debian
+      pullPolicy: IfNotPresent
     host: mysql
     port: 3306
     user: ghost
+    rootPassword: ghost
     password: ghost
     database: ghost
+    mount: /var/lib/mysql
     size: "10Gi"
