@@ -48,7 +48,7 @@ spec:
           image: "{{ include "litestream.image" . }}"
           args:
             - "restore"
-            - "-if-not-exists"
+            - "-if-db-not-exists"
             - "-if-replica-exists"
             - "-v"
             - "-o"
