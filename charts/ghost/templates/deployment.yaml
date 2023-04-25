@@ -13,7 +13,7 @@ metadata:
 spec:
   storageClassName: {{ .Release.Name }}-local-storage
   capacity:
-    storage: {{ .Values.database.size }}
+    storage: {{ .Values.database.sqlite3.size }}
   local:
     {{ if .Values.database.sqlite3.enabled }}
     path: {{ .Values.database.sqlite3.connection.mount }}
