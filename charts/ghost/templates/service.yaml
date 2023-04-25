@@ -3,9 +3,9 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.ghost.service.type }}
   ports:
-    - port: {{ .Values.service.port }}
+    - port: {{ .Values.ghost.service.port }}
       targetPort: http
       protocol: TCP
       name: http

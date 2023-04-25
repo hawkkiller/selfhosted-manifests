@@ -15,7 +15,9 @@ spec:
   capacity:
     storage: {{ .Values.database.size }}
   local:
-    path: {{ .Values.database.connection.mount }}
+    {{ if .Values.database.sqlite3.enabled }}
+    path: {{ .Values.database.sqlite3.connection.mount }}
+    {{ end }}
   persistentVolumeReclaimPolicy: Retain
   accessModes:
     - ReadWriteOnce
@@ -44,6 +46,7 @@ spec:
         app: {{ .Release.Name }}
     spec:
       initContainers:
+        {{ if and .Values.database.sqlite3.enabled .Values.litestream.enabled }}
         - name: "{{ .Release.Name }}-litestream-restore"
           image: "{{ include "litestream.image" . }}"
           args:
@@ -52,7 +55,7 @@ spec:
             - "-if-replica-exists"
             - "-v"
             - "-o"
-            - "{{ .Values.database.connection.filename }}"
+            - "{{ .Values.database.sqlite3.connection.filename }}"
             - "{{ include "litestream.s3.path" . }}"
           env:
             - name: AWS_ACCESS_KEY_ID
@@ -66,39 +69,56 @@ spec:
                   name: {{ .Values.litestream.awsSecretRef }}
                   key: aws_secret_access_key
           volumeMounts:
-            - mountPath: {{ .Values.database.connection.mount }}
+            - mountPath: {{ .Values.database.sqlite3.connection.mount }}
               name: {{ .Release.Name }}-volume-claim
+        {{ end }}
 
       containers:
         - name: {{ .Release.Name }}
           image: "{{ include "ghost.image" . }}"
           imagePullPolicy: {{ .Values.ghost.image.pullPolicy }}
           volumeMounts:
-            - mountPath: {{ .Values.database.connection.mount }}
+            {{ if .Values.database.sqlite3.enabled }}
+            - mountPath: {{ .Values.database.sqlite3.connection.mount }}
               name: {{ .Release.Name }}-volume-claim
+            {{ end }}
           ports:
             - containerPort: 2368
               name: http
           env:
-            - name: database__client
-              value: {{ .Values.database.client }}
             - name: NODE_ENV
               value: {{ .Values.ghost.nodeEnv }}
-              {{ if eq .Values.database.client "sqlite3" }}
-            - name: database__connection__filename
-              value: {{ .Values.database.connection.filename }}
-              {{ end }}
             - name: TZ
               value: {{ .Values.ghost.timezone }}
             - name: url
               value: {{ .Values.ghost.url }}
-
+              # sqlite
+              {{ if .Values.database.sqlite3.enabled }}
+            - name: database__client
+              value: "sqlite3"
+            - name: database__connection__filename
+              value: {{ .Values.database.sqlite3.connection.filename }}
+              {{ end }}
+              # mysql
+              {{ if .Values.database.mysql.enabled }}
+            - name: database__client
+              value: "mysql"
+            - name: database__connection__host
+              value: {{ .Values.database.mysql.host }}
+            - name: database__connection__user
+              value: {{ .Values.database.mysql.user }}
+            - name: database__connection__password
+              value: {{ .Values.database.mysql.password }}
+            - name: database__connection__database
+              value: {{ .Values.database.mysql.database }}
+              {{ end }}
+        {{ if .Values.database.sqlite3.enabled }}
         # sidecar litestream that replicates everything to S3 in the background
         - name: {{ .Release.Name }}-litestream
           image: "{{ include "litestream.image" . }}"
           args:
             - "replicate"
-            - "{{ .Values.database.connection.filename }}"
+            - "{{ .Values.database.sqlite3.connection.filename }}"
             - "{{ include "litestream.s3.path" . }}"
           env:
             - name: AWS_ACCESS_KEY_ID
@@ -112,8 +132,9 @@ spec:
                   name: {{ .Values.litestream.awsSecretRef }}
                   key: aws_secret_access_key
           volumeMounts:
-            - mountPath: {{ .Values.database.connection.mount }}
+            - mountPath: {{ .Values.database.sqlite3.connection.mount }}
               name: {{ .Release.Name }}-volume-claim
+        {{ end }}
   volumeClaimTemplates:
     - metadata:
         name: {{ .Release.Name }}-volume-claim
@@ -123,4 +144,10 @@ spec:
           - ReadWriteOnce
         resources:
           requests:
-            storage: {{ .Values.database.size }}
+            {{ if .Values.database.sqlite3.enabled }}
+            storage: {{ .Values.database.sqlite3.size }}
+            {{ end }}
+
+            {{ if .Values.database.mysql.enabled }}
+            storage: {{ .Values.database.mysql.size }}
+            {{ end }}
