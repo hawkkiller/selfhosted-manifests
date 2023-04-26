@@ -16,18 +16,18 @@ spec:
       containers:
         - name: {{ .Release.Name }}-mysql
           image: "{{ include "mysql.image" . }}"
-          livenessProbe:
-            exec:
-              command: [ "mysqladmin", "ping" ]
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
-          readinessProbe:
-            exec:
-              command: [ "mysqladmin", "ping" ]
-            initialDelaySeconds: 30
-            periodSeconds: 10
-            timeoutSeconds: 5
+{{/*          livenessProbe:*/}}
+{{/*            exec:*/}}
+{{/*              command: [ "mysqladmin", "ping" ]*/}}
+{{/*            initialDelaySeconds: 30*/}}
+{{/*            periodSeconds: 10*/}}
+{{/*            timeoutSeconds: 5*/}}
+{{/*          readinessProbe:*/}}
+{{/*            exec:*/}}
+{{/*              command: [ "mysqladmin", "ping" ]*/}}
+{{/*            initialDelaySeconds: 30*/}}
+{{/*            periodSeconds: 10*/}}
+{{/*            timeoutSeconds: 5*/}}
           env:
             - name: MYSQL_DATABASE
               valueFrom:
