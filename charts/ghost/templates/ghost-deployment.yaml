@@ -36,13 +36,13 @@ spec:
             - name: mail__options__port
               value: {{ .Values.ghost.mail.port }}
             - name: mail__options__auth__user
-              value: {{ .Values.ghost.mail.auth.username }}
+              value: {{ .Values.ghost.mail.auth.username | quote}}
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.ghost.mail.auth.privateSecretRef }}
                   key: username
             - name: mail__options__auth__pass
-              value: {{ .Values.ghost.mail.auth.password }}
+              value: {{ .Values.ghost.mail.auth.password | quote}}
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.ghost.mail.auth.privateSecretRef }}
