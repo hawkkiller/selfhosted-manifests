@@ -1,0 +1,87 @@
+{{ if .Values.database.mysql.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: "{{ .Release.Name }}-volume"
+spec:
+  capacity:
+    storage: {{ .Values.database.size }}
+  local:
+    path: {{ .Values.database.mysql.mount }}
+  persistentVolumeReclaimPolicy: Retain
+  accessModes:
+    - ReadWriteOnce
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: app
+              operator: In
+              values:
+                - {{ .Release.Name }}
+{{ end }}
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ .Release.Name }}-mysql
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-mysql
+  serviceName: {{ .Release.Name }}-mysql
+  template:
+    metadata:
+      name: {{ .Release.Name }}-mysql
+      labels:
+        app: {{ .Release.Name }}-mysql
+    spec:
+      containers:
+        - name: {{ .Release.Name }}-mysql
+          image: "{{ include "mysql.image" . }}"
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.mysql.connection.privateSecretRef }}
+                  key: mysql-database
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.mysql.connection.privateSecretRef }}
+                  key: mysql-username
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.mysql.connection.privateSecretRef }}
+                  key: mysql-root-password
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.database.mysql.connection.privateSecretRef }}
+                  key: mysql-password
+          ports:
+            - containerPort: 3306
+              name: mysql
+          volumeMounts:
+            - mountPath: {{ .Values.database.mysql.mount }}
+              name: {{ .Release.Name }}-volume-claim
+      volumes:
+        - name: {{ .Release.Name }}-volume-claim
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-volume-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Release.Name }}-mysql"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3306
+      targetPort: 3306
+      protocol: TCP
+      name: "http"
+  selector:
+    app: {{ .Release.Name }}-mysql

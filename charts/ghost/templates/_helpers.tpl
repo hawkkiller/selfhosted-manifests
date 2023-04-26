@@ -13,3 +13,7 @@ s3://{{- .Values.litestream.replicatePathS3 -}}
 {{- define "mysql.image" -}}
 {{ .Values.database.mysql.image.repository }}:{{ .Values.database.mysql.image.tag }}
 {{- end -}}
+
+{{- define "mysql.host" -}}
+{{ .Release.Name }}-mysql.{{ .Release.Namespace }}.svc.cluster.local
+{{- end -}}

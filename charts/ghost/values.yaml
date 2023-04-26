@@ -22,9 +22,9 @@ litestream:
 
 database:
   # Supported databases: sqlite3, mysql
+  size: 8Gi
   sqlite3:
     enabled: false
-    size: "1Gi"
     connection:
       filename: /var/lib/ghost/content/data/ghost.db
       mount: /var/lib/ghost/content/data
@@ -34,11 +34,10 @@ database:
       repository: mysql
       tag: 8.0.33-debian
       pullPolicy: IfNotPresent
-    host: mysql
-    port: 3306
-    user: ghost
-    rootPassword: ghost
-    password: ghost
-    database: ghost
+    connection:
+      # mysql-database
+      # mysql-username
+      # mysql-password
+      # mysql-root-password
+      privateSecretRef: ghost-mysql
     mount: /var/lib/mysql
-    size: "10Gi"
