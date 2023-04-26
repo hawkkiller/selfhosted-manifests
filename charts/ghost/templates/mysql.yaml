@@ -66,11 +66,19 @@ spec:
               name: mysql
           volumeMounts:
             - mountPath: {{ .Values.database.mysql.mount }}
-              name: {{ .Release.Name }}-volume-claim
+              name: {{ .Release.Name }}-sql-claim
       volumes:
-        - name: {{ .Release.Name }}-volume-claim
+        - name: {{ .Release.Name }}-sql-claim
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-volume-claim
+            claimName: {{ .Release.Name }}-sql-claim
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ .Release.Name }}-sql-claim
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        resources:
+          requests:
+            storage: {{ .Values.database.size }}
 ---
 apiVersion: v1
 kind: Service
