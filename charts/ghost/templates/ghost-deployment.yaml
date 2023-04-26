@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        # Ghost
+        - name: {{ .Release.Name }}
+          image: "{{ include "ghost.image" . }}"
+          imagePullPolicy: {{ .Values.ghost.image.pullPolicy }}
+          ports:
+            - containerPort: 2368
+              name: http
+          env:
+            - name: NODE_ENV
+              value: {{ .Values.ghost.nodeEnv }}
+            - name: TZ
+              value: {{ .Values.ghost.timezone }}
+            - name: url
+              value: {{ .Values.ghost.url }}
+            - name: mail__from
+              value: {{ .Values.ghost.mail.from }}
+            - name: mail__transport
+              value: {{ .Values.ghost.mail.transport }}
+            - name: mail__options__host
+              value: {{ .Values.ghost.mail.host }}
+            - name: mail__options__port
+              value: {{ .Values.ghost.mail.port }}
+            - name: mail__options__auth__user
+              value: {{ .Values.ghost.mail.auth.username }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.ghost.mail.auth.privateSecretRef }}
+                  key: username
+            - name: mail__options__auth__pass
+              value: {{ .Values.ghost.mail.auth.password }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.ghost.mail.auth.privateSecretRef }}
+                  key: password
+              # sqlite
+              # mysql
+            - name: database__client
+              value: "mysql"
+            - name: database__connection__host
+              value: {{ include "mysql.host" . }}
+            - name: database__connection__user
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.connection.privateSecretRef }}
+                  key: mysql-username
+            - name: database__connection__password
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.connection.privateSecretRef }}
+                  key: mysql-password
+            - name: database__connection__database
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.connection.privateSecretRef }}
+                  key: mysql-database

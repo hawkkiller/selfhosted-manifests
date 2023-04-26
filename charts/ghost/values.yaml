@@ -20,34 +20,16 @@ ghost:
       # or use secret reference for password and
       privateSecretRef: ghost-mail
 
-# litestream is a tool for replicating SQLite databases to S3
-litestream:
-  enabled: false
-  image:
-    repository: litestream/litestream
-    tag: latest
-    pullPolicy: IfNotPresent
-  awsSecretRef: aws-credentials
-  replicatePathS3: "litestream-replicate/ghost.db"
-
-database:
-  # Supported databases: sqlite3, mysql
+mysql:
   size: 8Gi
-  sqlite3:
-    enabled: false
-    connection:
-      filename: /var/lib/ghost/content/data/ghost.db
-      mount: /var/lib/ghost/content/data
-  mysql:
-    enabled: true
-    image:
-      repository: mysql
-      tag: 8.0.33-debian
-      pullPolicy: IfNotPresent
-    connection:
+  image:
+    repository: mysql
+    tag: 8.0.33-debian
+    pullPolicy: IfNotPresent
+  connection:
       # mysql-database
       # mysql-username
       # mysql-password
       # mysql-root-password
-      privateSecretRef: ghost-mysql
-    mount: /var/lib/mysql
+    privateSecretRef: ghost-mysql
+  mount: /var/lib/mysql
