@@ -94,6 +94,26 @@ spec:
               value: {{ .Values.ghost.timezone }}
             - name: url
               value: {{ .Values.ghost.url }}
+            - name: mail__from
+              value: {{ .Values.ghost.mail.from }}
+            - name: mail__transport
+              value: {{ .Values.ghost.mail.transport }}
+            - name: mail__options__host
+              value: {{ .Values.ghost.mail.host }}
+            - name: mail__options__port
+              value: {{ .Values.ghost.mail.port }}
+            - name: mail__options__auth__user
+              value: {{ .Values.ghost.mail.auth.username }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.ghost.mail.auth.privateSecretRef }}
+                  key: username
+            - name: mail__options__auth__pass
+              value: {{ .Values.ghost.mail.auth.password }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.ghost.mail.auth.privateSecretRef }}
+                  key: password
               # sqlite
               {{ if .Values.database.sqlite3.enabled }}
             - name: database__client
