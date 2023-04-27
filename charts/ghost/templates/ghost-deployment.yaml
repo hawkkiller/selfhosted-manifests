@@ -26,13 +26,13 @@ spec:
             - name: TZ
               value: {{ .Values.ghost.timezone }}
             - name: url
-              value: {{ .Values.ghost.url }}
+              value: {{ .Values.ghost.url | quote }}
             - name: mail__from
-              value: {{ .Values.ghost.mail.from }}
+              value: {{ .Values.ghost.mail.from | quote }}
             - name: mail__transport
-              value: {{ .Values.ghost.mail.transport }}
+              value: {{ .Values.ghost.mail.transport | quote }}
             - name: mail__options__host
-              value: {{ .Values.ghost.mail.host }}
+              value: {{ .Values.ghost.mail.host | quote }}
             - name: mail__options__port
               value: {{ .Values.ghost.mail.port }}
             - name: mail__options__auth__user
@@ -45,12 +45,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.ghost.mail.auth.privateSecretRef }}
                   key: password
-              # sqlite
               # mysql
             - name: database__client
               value: "mysql"
             - name: database__connection__host
-              value: {{ include "mysql.host" . }}
+              value: {{ include "mysql.host" . | quote }}
             - name: database__connection__user
               valueFrom:
                 secretKeyRef:
