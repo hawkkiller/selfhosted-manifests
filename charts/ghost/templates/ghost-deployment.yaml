@@ -22,9 +22,9 @@ spec:
               name: http
           env:
             - name: NODE_ENV
-              value: {{ .Values.ghost.nodeEnv }}
+              value: {{ .Values.ghost.nodeEnv | quote }}
             - name: TZ
-              value: {{ .Values.ghost.timezone }}
+              value: {{ .Values.ghost.timezone | quote }}
             - name: url
               value: {{ .Values.ghost.url | quote }}
             - name: mail__from
@@ -34,7 +34,7 @@ spec:
             - name: mail__options__host
               value: {{ .Values.ghost.mail.host | quote }}
             - name: mail__options__port
-              value: {{ .Values.ghost.mail.port }}
+              value: {{ .Values.ghost.mail.port | quote }}
             - name: mail__options__auth__user
               valueFrom:
                 secretKeyRef:
