@@ -50,8 +50,7 @@ spec:
               command:
                 - /bin/sh
                 - -c
-                - date; echo Hello!;
-                - ls var/lib/mysql;
+                - date; echo Hello!; ls var/lib/mysql
           restartPolicy: OnFailure
           volumes:
             - name: {{ .Release.Name }}-mysql-claim
