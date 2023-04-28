@@ -1,0 +1,96 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Release.Name }}-mysql-backup
+spec:
+  schedule: "* * * * *" #	Run every minute
+  jobTemplate:
+    spec:
+      ttlSecondsAfterFinished: 86400 # 1 day
+      template:
+        spec:
+          containers:
+            - name: backup
+              image: amazon/aws-cli:amd64
+              env:
+                - name: S3_REGION
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.mysql.backup.awsSecretRef }}
+                      key: S3_REGION
+                - name: S3_BUCKET
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.mysql.backup.awsSecretRef }}
+                      key: S3_BUCKET
+                - name: AWS_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.mysql.backup.awsSecretRef }}
+                      key: S3_ACCESS_KEY_ID
+                - name: AWS_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.mysql.backup.awsSecretRef }}
+                      key: S3_SECRET_ACCESS_KEY
+                - name: MYSQL_HOST
+                  value: {{ include "mysql.host" . }}
+                - name: MYSQL_USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.mysql.connection.privateSecretRef }}
+                      key: mysql-username
+                - name: MYSQL_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.mysql.connection.privateSecretRef }}
+                      key: mysql-password
+                - name: RETENTION_DAYS
+                  value: "{{ .Values.mysql.backup.retentionDays }}"
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  #!/bin/sh
+                  set -e
+
+                  DATABASES="{{ .Values.mysql.backup.databases | join " " }}"
+
+                  # install tar, gzip, mysql
+                  yum install -y tar gzip mysql
+
+                  DATE_FORMAT=$(date +"%Y-%m-%d-%H-%M-%S")
+
+                  # local backup dir
+                  LOCAL_BACKUP_DIR="/backup/dbbackup"
+                  # remote backup dir
+                  REMOTE_DIR="s3://${S3_BUCKET}/themisha/backup/mysql"
+
+                  # create dir
+                  mkdir -p ${LOCAL_BACKUP_DIR}/${DATE_FORMAT}
+
+                  for db in $DATABASES; do
+                    mysqldump \
+                        -h ${MYSQL_HOST} \
+                        -u ${MYSQL_USER} \
+                        -p${MYSQL_PASSWORD} \
+                        --single-transaction ${db} | gzip -9 > ${LOCAL_DIR}/${db}-${DATE_FORMAT}.sql.gz
+                  aws s3 cp ${LOCAL_DIR}/${db}-${DATE_FORMAT}.sql.gz ${REMOTE_DIR}/${DATE_FORMAT}/
+                  done
+
+                  # delete old backups from aws
+                  OLDEST_DATE=$(date -d "-${BACKUP_RETENTION_DAYS} days" +%Y-%m-%d)
+                  aws s3api list-objects --bucket "${S3_BUCKET}" --prefix "themisha/backup/mysql" --query "Contents[?LastModified<='${OLDEST_DATE}'].{Key: Key}" --output text | while read -r object_key; do
+                    aws s3 rm "s3://${S3_BUCKET}/${object_key}"
+                  done
+
+
+
+              volumeMounts:
+                - name: blog-backup-isso-db-persistent-storage
+                  mountPath: /data
+          restartPolicy: OnFailure
+          volumes:
+            - name: {{ .Release.Name }}-mysql-claim
+              persistentVolumeClaim:
+                claimName: {{ .Release.Name }}-mysql-volume-claim

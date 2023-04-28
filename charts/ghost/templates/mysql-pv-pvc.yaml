@@ -29,31 +29,3 @@ spec:
   resources:
     requests:
       storage: {{ .Values.mysql.size }}
----
-apiVersion: batch/v1
-kind: CronJob
-metadata:
-  name: {{ .Release.Name }}-mysql-backup
-spec:
-  schedule: "* * * * *" #	Run every minute
-  jobTemplate:
-    spec:
-      ttlSecondsAfterFinished: 86400 # 1 day
-      template:
-        spec:
-          containers:
-            - name: {{ .Release.Name }}-mysql-backup
-              image: busybox:latest
-              imagePullPolicy: IfNotPresent
-              volumeMounts:
-                - mountPath: {{ .Values.mysql.mount }}
-                  name: {{ .Release.Name }}-mysql-claim
-              command:
-                - /bin/sh
-                - -c
-                - date; echo Hello!; ls var/lib/mysql
-          restartPolicy: OnFailure
-          volumes:
-            - name: {{ .Release.Name }}-mysql-claim
-              persistentVolumeClaim:
-                claimName: {{ .Release.Name }}-mysql-volume-claim
