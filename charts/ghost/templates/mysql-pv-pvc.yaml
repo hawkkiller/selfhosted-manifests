@@ -38,6 +38,7 @@ spec:
   schedule: "* * * * *" #	Run every minute
   jobTemplate:
     spec:
+      ttlSecondsAfterFinished: 86400 # 1 day
       template:
         spec:
           containers:
