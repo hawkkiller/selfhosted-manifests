@@ -1,3 +1,4 @@
+{{ if .Values.mysql.backup.enabled }}
 apiVersion: batch/v1
 kind: CronJob
 metadata:
@@ -94,3 +95,4 @@ spec:
             - name: {{ .Release.Name }}-mysql-claim
               persistentVolumeClaim:
                 claimName: {{ .Release.Name }}-mysql-volume-claim
+{{ end }}
