@@ -49,6 +49,11 @@ spec:
                       key: mysql-password
                 - name: RETENTION_DAYS
                   value: "{{ .Values.mysql.backup.retentionDays }}"
+                - name: MYSQL_DATABASE
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ .Values.mysql.connection.privateSecretRef }}
+                      key: mysql-database
               command:
                 - /bin/sh
                 - -c
@@ -56,7 +61,6 @@ spec:
                   #!/bin/sh
                   set -e
 
-                  DATABASES="{{ .Values.mysql.backup.databases | join " " }}"
 
                   # install tar, gzip, mysql
                   yum install -y tar gzip mysql
@@ -71,14 +75,12 @@ spec:
                   # create dir
                   mkdir -p ${LOCAL_BACKUP_DIR}/${DATE_FORMAT}
 
-                  for db in $DATABASES; do
-                    mysqldump \
-                        -h ${MYSQL_HOST} \
-                        -u ${MYSQL_USER} \
-                        -p${MYSQL_PASSWORD} \
-                        --single-transaction ${db} | gzip -9 > ${LOCAL_DIR}/${db}-${DATE_FORMAT}.sql.gz
-                  aws s3 cp ${LOCAL_DIR}/${db}-${DATE_FORMAT}.sql.gz ${REMOTE_DIR}/${DATE_FORMAT}/
-                  done
+                  mysqldump \
+                      -h ${MYSQL_HOST} \
+                      -u ${MYSQL_USER} \
+                      -p${MYSQL_PASSWORD} \
+                      --single-transaction ${MYSQL_DATABASE} | gzip -9 > ${LOCAL_DIR}/${MYSQL_DATABASE}-${DATE_FORMAT}.sql.gz
+                  aws s3 cp ${LOCAL_DIR}/${MYSQL_DATABASE}-${DATE_FORMAT}.sql.gz ${REMOTE_DIR}/${DATE_FORMAT}/
 
                   # delete old backups from aws
                   OLDEST_DATE=$(date -d "-${RETENTION_DAYS} days" +%Y-%m-%d)
