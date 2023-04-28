@@ -54,16 +54,8 @@ spec:
               name: mysql
           volumeMounts:
             - mountPath: {{ .Values.mysql.mount }}
-              name: {{ .Release.Name }}-sql-claim
+              name: {{ .Release.Name }}-mysql-claim
       volumes:
-        - name: {{ .Release.Name }}-sql-claim
+        - name: {{ .Release.Name }}-mysql-claim
           persistentVolumeClaim:
-            claimName: {{ .Release.Name }}-sql-claim
-  volumeClaimTemplates:
-    - metadata:
-        name: {{ .Release.Name }}-sql-claim
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        resources:
-          requests:
-            storage: {{ .Values.mysql.size }}
+            claimName: {{ .Release.Name }}-mysql-volume-claim
