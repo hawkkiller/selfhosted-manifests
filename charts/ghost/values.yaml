@@ -42,3 +42,4 @@ mysql:
     schedule: "0 0 * * *"
     retentionDays: 10
     databases: [ ]
+    bucketPath: "backup"

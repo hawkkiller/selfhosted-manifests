@@ -10,6 +10,7 @@ spec:
       ttlSecondsAfterFinished: 86400 # 1 day
       template:
         spec:
+          restartPolicy: OnFailure
           containers:
             - name: backup
               image: amazon/aws-cli:amd64
@@ -65,7 +66,7 @@ spec:
                   # local backup dir
                   LOCAL_BACKUP_DIR="/backup/dbbackup"
                   # remote backup dir
-                  REMOTE_DIR="s3://${S3_BUCKET}/themisha/backup/mysql"
+                  REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.mysql.backup.bucketPath -}}"
 
                   # create dir
                   mkdir -p ${LOCAL_BACKUP_DIR}/${DATE_FORMAT}
@@ -80,19 +81,8 @@ spec:
                   done
 
                   # delete old backups from aws
-                  OLDEST_DATE=$(date -d "-${BACKUP_RETENTION_DAYS} days" +%Y-%m-%d)
-                  aws s3api list-objects --bucket "${S3_BUCKET}" --prefix "themisha/backup/mysql" --query "Contents[?LastModified<='${OLDEST_DATE}'].{Key: Key}" --output text | while read -r object_key; do
+                  OLDEST_DATE=$(date -d "-${RETENTION_DAYS} days" +%Y-%m-%d)
+                  aws s3api list-objects --bucket "${S3_BUCKET}" --prefix "{{- .Values.mysql.backup.bucketPath -}}" --query "Contents[?LastModified<='${OLDEST_DATE}'].{Key: Key}" --output text | while read -r object_key; do
                     aws s3 rm "s3://${S3_BUCKET}/${object_key}"
                   done
-
-
-
-              volumeMounts:
-                - name: blog-backup-isso-db-persistent-storage
-                  mountPath: /data
-          restartPolicy: OnFailure
-          volumes:
-            - name: {{ .Release.Name }}-mysql-claim
-              persistentVolumeClaim:
-                claimName: {{ .Release.Name }}-mysql-volume-claim
 {{ end }}
