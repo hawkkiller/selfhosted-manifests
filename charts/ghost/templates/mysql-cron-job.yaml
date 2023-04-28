@@ -72,7 +72,7 @@ spec:
                   REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.mysql.backup.bucketPath -}}"
 
                   # create dir
-                  mkdir -p ${LOCAL_BACKUP_DIR}/${DATE_FORMAT}
+                  mkdir -p ${LOCAL_DIR}/${DATE_FORMAT}
 
                   mysqldump \
                       -h ${MYSQL_HOST} \
