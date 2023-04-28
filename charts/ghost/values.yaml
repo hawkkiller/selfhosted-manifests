@@ -41,4 +41,5 @@ mysql:
     awsSecretRef: ghost-backup
     schedule: "0 0 * * *"
     retentionDays: 10
+    ttlSecondsAfterFinished: 86400
     bucketPath: "backup"
