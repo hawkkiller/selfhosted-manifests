@@ -61,14 +61,13 @@ spec:
                   #!/bin/sh
                   set -e
 
-
                   # install tar, gzip, mysql
                   yum install -y tar gzip mysql
 
                   DATE_FORMAT=$(date +"%Y-%m-%d-%H-%M-%S")
 
                   # local backup dir
-                  LOCAL_BACKUP_DIR="/backup/dbbackup"
+                  LOCAL_DIR="/backup/dbbackup"
                   # remote backup dir
                   REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.mysql.backup.bucketPath -}}"
 
