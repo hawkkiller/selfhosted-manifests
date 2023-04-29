@@ -36,17 +36,19 @@ spec:
                       name: {{ .Values.mysql.backup.awsSecretRef }}
                       key: S3_SECRET_ACCESS_KEY
                 - name: MYSQL_HOST
-                  value: {{ include "mysql.host" . }}
+                  value: {{ include "mysql.host" . | quote }}
                 - name: MYSQL_USER
-                  valueFrom:
-                    secretKeyRef:
-                      name: {{ .Values.mysql.connection.privateSecretRef }}
-                      key: mysql-username
+                  value: "root"
+{{/*                  valueFrom:*/}}
+{{/*                    secretKeyRef:*/}}
+{{/*                      name: {{ .Values.mysql.connection.privateSecretRef }}*/}}
+{{/*                      key: mysql-username*/}}
                 - name: MYSQL_PASSWORD
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.mysql.connection.privateSecretRef }}
-                      key: mysql-password
+                      key: mysql-root-password
+{{/*                      key: mysql-password*/}}
                 - name: RETENTION_DAYS
                   value: "{{ .Values.mysql.backup.retentionDays }}"
                 - name: MYSQL_DATABASE
@@ -59,26 +61,41 @@ spec:
                 - -c
                 - |
                   #!/bin/sh
-                  set -e
 
-                  # install tar, gzip, mysql
-                  yum install -y tar gzip mysql
+                  set -e
+                  cat /etc/os-release
+
+                  # install tar, gzip
+                  yum -y install tar gzip
+
+                  # Install the MySQL Community Repo for mysqldump
+                  yum -y install https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm
+
+                  # Install the mysqldump package
+                  yum -y install mysql-community-client
+
+                  # Check if mysql is successfully installed
+                  mysql --version
 
                   DATE_FORMAT=$(date +"%Y-%m-%d-%H-%M-%S")
 
                   # local backup dir
                   LOCAL_DIR="/backup/dbbackup"
+
                   # remote backup dir
                   REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.mysql.backup.bucketPath -}}"
 
                   # create dir
                   mkdir -p ${LOCAL_DIR}/${DATE_FORMAT}
 
+                  # create dump
                   mysqldump \
                       -h ${MYSQL_HOST} \
                       -u ${MYSQL_USER} \
                       -p${MYSQL_PASSWORD} \
                       --single-transaction ${MYSQL_DATABASE} | gzip -9 > ${LOCAL_DIR}/${MYSQL_DATABASE}-${DATE_FORMAT}.sql.gz
+
+                  # copy to aws s3
                   aws s3 cp ${LOCAL_DIR}/${MYSQL_DATABASE}-${DATE_FORMAT}.sql.gz ${REMOTE_DIR}/${DATE_FORMAT}/
 
                   # delete old backups from aws

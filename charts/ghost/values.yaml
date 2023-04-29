@@ -39,7 +39,7 @@ mysql:
     # S3_BUCKET
     # S3_REGION
     awsSecretRef: ghost-backup
-    schedule: "0 0 * * *"
+    schedule: "* * * * *"
     retentionDays: 10
     ttlSecondsAfterFinished: 86400
-    bucketPath: "backup"
+    bucketPath: "ghost/backup/mysql"
