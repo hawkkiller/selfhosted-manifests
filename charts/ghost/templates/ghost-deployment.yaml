@@ -76,6 +76,7 @@ spec:
             - -c
             - |
               #!/bin/sh
+
               # install tar, gzip
               yum -y install tar gzip
 
@@ -112,17 +113,23 @@ spec:
                 REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.mysql.backup.bucketPath -}}"
 
                 # Download latest backup
-                LATEST_BACKUP=$(aws s3 ls ${REMOTE_DIR} | sort | tail -n 1 | awk '{print $4}')
+                LATEST_BACKUP=$(aws s3 ls ${REMOTE_DIR} --recursive | sort | tail -n 1 | awk '{print $4}')
 
                 if [[ -z "$LATEST_BACKUP" ]]; then
                   echo "No backup found in ${REMOTE_DIR}"
                   exit 0
                 fi
 
-                aws s3 cp ${REMOTE_DIR}/${LATEST_BACKUP} /tmp/${LATEST_BACKUP}
+                parent_dir=$(dirname "/tmp/${LATEST_BACKUP}")
+
+                mkdir -p $parent_dir
+
+                echo "Downloading ${LATEST_BACKUP} from ${REMOTE_DIR}..."
+
+                aws --debug s3 cp "s3://${S3_BUCKET}/${LATEST_BACKUP}" /tmp/${LATEST_BACKUP}
 
                 # MySQL data does not exist, apply the dump
-                mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < /tmp/${LATEST_BACKUP}
+               gunzip < /tmp/${LATEST_BACKUP} | mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE}
 
                 # Remove the dump file
                 rm /tmp/${LATEST_BACKUP}
