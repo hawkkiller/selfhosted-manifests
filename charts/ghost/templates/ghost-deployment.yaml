@@ -126,7 +126,7 @@ spec:
 
                 echo "Downloading ${LATEST_BACKUP} from ${REMOTE_DIR}..."
 
-                aws --debug s3 cp "s3://${S3_BUCKET}/${LATEST_BACKUP}" /tmp/${LATEST_BACKUP}
+                aws s3 cp "s3://${S3_BUCKET}/${LATEST_BACKUP}" /tmp/${LATEST_BACKUP}
 
                 # MySQL data does not exist, apply the dump
                 gunzip < /tmp/${LATEST_BACKUP} | mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE}
