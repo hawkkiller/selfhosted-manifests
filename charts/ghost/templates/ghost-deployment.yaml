@@ -12,6 +12,19 @@ spec:
       labels:
         app: {{ .Release.Name }}
     spec:
+      initContainers:
+        - name: mysql-wait
+          image: busybox:1.36.0
+          command:
+            - sh
+            - -c
+            - |
+              until echo "SELECT 1" | nc -w 1 {{ include "mysql.host" . }} 3306 >/dev/null; do
+                echo "MySQL is not running yet"
+                sleep 3
+              done
+
+              echo "MySQL is running"
       containers:
         # Ghost
         - name: {{ .Release.Name }}
