@@ -15,16 +15,120 @@ spec:
       initContainers:
         - name: mysql-wait
           image: busybox:1.36.0
+          env:
+            - name: MYSQL_HOST
+              value: {{ include "mysql.host" . | quote }}
           command:
             - sh
             - -c
             - |
-              until echo "SELECT 1" | nc -w 1 {{ include "mysql.host" . }} 3306 >/dev/null; do
+              #!/bin/sh
+              until echo "SELECT 1" | nc -w 1 ${MYSQL_HOST} 3306 >/dev/null; do
                 echo "MySQL is not running yet"
                 sleep 3
               done
 
               echo "MySQL is running"
+        - name: mysql-apply-dump
+          image: amazon/aws-cli:amd64
+          env:
+            - name: S3_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.backup.awsSecretRef }}
+                  key: S3_REGION
+            - name: S3_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.backup.awsSecretRef }}
+                  key: S3_BUCKET
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.backup.awsSecretRef }}
+                  key: S3_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.backup.awsSecretRef }}
+                  key: S3_SECRET_ACCESS_KEY
+            - name: MYSQL_HOST
+              value: {{ include "mysql.host" . | quote }}
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.connection.privateSecretRef }}
+                  key: mysql-username
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.connection.privateSecretRef }}
+                  key: mysql-password
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.mysql.connection.privateSecretRef }}
+                  key: mysql-database
+            - name: GHOST_TABLE_NAME
+              value: permissions
+          command:
+            - sh
+            - -c
+            - |
+              #!/bin/sh
+              # install tar, gzip
+              yum -y install tar gzip
+
+              # Install the MySQL Community Repo for mysqldump
+              yum -y install https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm
+
+              # Install the mysqldump package
+              yum -y install mysql-community-client
+
+              # Check if table exists
+              query="SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${MYSQL_DATABASE}' AND table_name='${GHOST_TABLE_NAME}';"
+              table_exists=$(mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -h ${MYSQL_HOST} -e "$query" --skip-column-names)
+
+              apply_dump=0
+
+              if [[ $table_exists -eq 1 ]]; then
+                # Check if table is empty
+                query="SELECT COUNT(*) FROM ${GHOST_TABLE_NAME};"
+                row_count=$(mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -h ${MYSQL_HOST} ${MYSQL_DATABASE} -e "$query" --skip-column-names)
+
+                if [[ $row_count -eq 0 ]]; then
+                  apply_dump=1
+                else
+                  echo "Table '${GHOST_TABLE_NAME}' exists and is not empty. Not importing the dump."
+                fi
+              else
+                apply_dump=1
+              fi
+
+              # Apply MySQL dump if necessary
+              if [[ $apply_dump -eq 1 ]]; then
+                echo "Importing MySQL dump..."
+                # Remote backup directory
+                REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.mysql.backup.bucketPath -}}"
+
+                # Download latest backup
+                LATEST_BACKUP=$(aws s3 ls ${REMOTE_DIR} | sort | tail -n 1 | awk '{print $4}')
+
+                if [[ -z "$LATEST_BACKUP" ]]; then
+                  echo "No backup found in ${REMOTE_DIR}"
+                  exit 0
+                fi
+
+                aws s3 cp ${REMOTE_DIR}/${LATEST_BACKUP} /tmp/${LATEST_BACKUP}
+
+                # MySQL data does not exist, apply the dump
+                mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE} < /tmp/${LATEST_BACKUP}
+
+                # Remove the dump file
+                rm /tmp/${LATEST_BACKUP}
+                echo "MySQL dump imported successfully."
+              fi
+
       containers:
         # Ghost
         - name: {{ .Release.Name }}
