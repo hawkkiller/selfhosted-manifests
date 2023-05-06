@@ -2,6 +2,7 @@ ghost:
   nodeEnv: development
   timezone: UTC
   url: https://themisha.dev
+  storage: 1Gi
   image:
     repository: ghost
     tag: 5.44.0-alpine
@@ -30,16 +31,13 @@ mysql:
     # mysql-root-password
     privateSecretRef: ghost-mysql
   mount: /var/lib/mysql
-  # backup configuration via cronjob
-  backup:
-    enabled: false
-    # specify
-    # S3_SECRET_ACCESS_KEY
-    # S3_ACCESS_KEY_ID
-    # S3_BUCKET
-    # S3_REGION
-    awsSecretRef: ghost-backup
-    schedule: "* * * * *"
-    retentionDays: 10
-    ttlSecondsAfterFinished: 86400
-    bucketPath: "ghost/backup/mysql"
+
+# backup configuration via cronjob
+backup:
+  enabled: false
+  awsSecretRef: ghost-backup
+  schedule: "* * * * *"
+  retentionDays: 7
+  ttlSecondsAfterFinished: 86400
+  mysqlPath: "ghost/backup/mysql"
+  ghostPath: "ghost/backup/ghost"

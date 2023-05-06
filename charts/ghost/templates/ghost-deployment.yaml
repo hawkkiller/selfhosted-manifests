@@ -18,12 +18,14 @@ spec:
           env:
             - name: MYSQL_HOST
               value: {{ include "mysql.host" . | quote }}
+            - name: MYSQL_PORT
+              value: "3306"
           command:
             - sh
             - -c
             - |
               #!/bin/sh
-              until echo "SELECT 1" | nc -w 1 ${MYSQL_HOST} 3306 >/dev/null; do
+              until echo "SELECT 1" | nc -w 1 ${MYSQL_HOST} ${MYSQL_PORT}>/dev/null; do
                 echo "MySQL is not running yet"
                 sleep 3
               done
@@ -35,22 +37,22 @@ spec:
             - name: S3_REGION
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.mysql.backup.awsSecretRef }}
+                  name: {{ .Values.backup.awsSecretRef }}
                   key: S3_REGION
             - name: S3_BUCKET
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.mysql.backup.awsSecretRef }}
+                  name: {{ .Values.backup.awsSecretRef }}
                   key: S3_BUCKET
             - name: AWS_ACCESS_KEY_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.mysql.backup.awsSecretRef }}
+                  name: {{ .Values.backup.awsSecretRef }}
                   key: S3_ACCESS_KEY_ID
             - name: AWS_SECRET_ACCESS_KEY
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.mysql.backup.awsSecretRef }}
+                  name: {{ .Values.backup.awsSecretRef }}
                   key: S3_SECRET_ACCESS_KEY
             - name: MYSQL_HOST
               value: {{ include "mysql.host" . | quote }}
@@ -110,7 +112,7 @@ spec:
               if [[ $apply_dump -eq 1 ]]; then
                 echo "Importing MySQL dump..."
                 # Remote backup directory
-                REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.mysql.backup.bucketPath -}}"
+                REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.backup.mysqlPath -}}"
 
                 # Download latest backup
                 LATEST_BACKUP=$(aws s3 ls ${REMOTE_DIR} --recursive | sort | tail -n 1 | awk '{print $4}')
@@ -169,7 +171,6 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.ghost.mail.auth.privateSecretRef }}
                   key: password
-              # mysql
             - name: database__client
               value: "mysql"
             - name: database__connection__host
@@ -189,3 +190,20 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.mysql.connection.privateSecretRef }}
                   key: mysql-database
+          volumeMounts:
+            - mountPath: /var/lib/ghost/content
+              name: ghost-content
+      volumes:
+        - name: ghost-content
+          persistentVolumeClaim:
+            claimName: "{{ .Release.Name }}-ghost-volume-claim"
+{{/*  apps*/}}
+{{/*  data*/}}
+{{/*  files*/}}
+{{/*  images*/}}
+{{/*  logs*/}}
+{{/*  lost+found*/}}
+{{/*  media*/}}
+{{/*  public*/}}
+{{/*  settings*/}}
+{{/*  themes*/}}
