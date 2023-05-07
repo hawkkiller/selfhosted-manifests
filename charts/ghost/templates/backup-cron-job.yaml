@@ -13,7 +13,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: backup
-              image: amazon/aws-cli:amd64
+              image: amazon/aws-cli
               env:
                 - name: S3_REGION
                   valueFrom:
@@ -98,7 +98,7 @@ spec:
                   aws s3 cp ${LOCAL_DIR}/${MYSQL_DATABASE}-${DATE_FORMAT}.sql.gz ${REMOTE_DIR}/${DATE_FORMAT}/
 
                   # copy everything from ghost content directory except logs, themes
-                  cp -r /var/lib/ghost/content ${LOCAL_DIR}/${DATE_FORMAT}/
+                  cp -r {{ .Values.ghost.mount }} ${LOCAL_DIR}/${DATE_FORMAT}/
                   rm -rf ${LOCAL_DIR}/${DATE_FORMAT}/content/logs ${LOCAL_DIR}/${DATE_FORMAT}/content/themes/casper
 
                   aws s3 sync ${LOCAL_DIR}/${DATE_FORMAT}/ "s3://${S3_BUCKET}/${BUCKET_GHOST_PATH}/${DATE_FORMAT}/"
@@ -114,7 +114,7 @@ spec:
                   done
 
               volumeMounts:
-                - mountPath: /var/lib/ghost/content
+                - mountPath: {{ .Values.ghost.mount }}
                   name: ghost-content
           volumes:
             - name: ghost-content

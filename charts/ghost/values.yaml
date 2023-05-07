@@ -3,6 +3,7 @@ ghost:
   timezone: UTC
   url: https://themisha.dev
   storage: 1Gi
+  mount: /var/lib/ghost/content
   image:
     repository: ghost
     tag: 5.44.0-alpine
