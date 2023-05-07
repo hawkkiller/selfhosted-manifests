@@ -95,15 +95,8 @@ spec:
               apply_dump=0
 
               if [[ $table_exists -eq 1 ]]; then
-                # Check if table is empty
-                query="SELECT COUNT(*) FROM ${GHOST_TABLE_NAME};"
-                row_count=$(mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -h ${MYSQL_HOST} ${MYSQL_DATABASE} -e "$query" --skip-column-names)
-
-                if [[ $row_count -eq 0 ]]; then
-                  apply_dump=1
-                else
-                  echo "Table '${GHOST_TABLE_NAME}' exists and is not empty. Not importing the dump."
-                fi
+                echo "Table ${GHOST_TABLE_NAME} exists, skipping MySQL dump import..."
+                exit 0
               else
                 apply_dump=1
               fi
