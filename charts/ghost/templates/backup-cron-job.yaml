@@ -99,9 +99,8 @@ spec:
 
                   # copy everything from ghost content directory except logs
                   cp -r /var/lib/ghost/content ${LOCAL_DIR}/${DATE_FORMAT}/
-                  rm -rf ${LOCAL_DIR}/${DATE_FORMAT}/content/logs
 
-                  aws s3 cp ${LOCAL_DIR}/${DATE_FORMAT}/ "s3://${S3_BUCKET}/${BUCKET_GHOST_PATH}/"  --recursive
+                  aws s3 sync ${LOCAL_DIR}/${DATE_FORMAT}/ "s3://${S3_BUCKET}/${BUCKET_GHOST_PATH}/${DATE_FORMAT}/"
 
                   # delete local backup
                   rm -rf ${LOCAL_DIR}
