@@ -9,7 +9,7 @@ spec:
     path: {{ .Values.mysql.mount }}
   persistentVolumeReclaimPolicy: Retain
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   nodeAffinity:
     required:
       nodeSelectorTerms:
