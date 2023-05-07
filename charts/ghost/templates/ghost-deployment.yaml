@@ -180,7 +180,9 @@ spec:
               # Apply Ghost dump
               echo "Importing Ghost dump..."
               cp -R /tmp/${LATEST_BACKUP} {{ .Values.ghost.mount }}
-
+          volumeMounts:
+            - mountPath: {{ .Values.ghost.mount }}
+              name: ghost-content
       containers:
         # Ghost
         - name: {{ .Release.Name }}
