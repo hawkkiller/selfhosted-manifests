@@ -1,5 +1,5 @@
 ghost:
-  nodeEnv: development
+  nodeEnv: production
   timezone: UTC
   url: https://themisha.dev
   storage: 1Gi
