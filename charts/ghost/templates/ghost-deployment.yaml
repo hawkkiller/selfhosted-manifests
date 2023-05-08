@@ -161,25 +161,17 @@ spec:
 
               REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.backup.ghostPath -}}"
 
-              # Download latest backup
-              LATEST_BACKUP=$(aws s3 ls ${REMOTE_DIR} --recursive | sort | tail -n 1 | awk '{print $4}')
+              # find latest backup folder in REMOTE_DIR
+              LATEST_BACKUP=$(aws s3 ls ${REMOTE_DIR} --recursive | sort -r | grep -m1 -oE "$PREFIX/[0-9-]{19}")
 
               if [[ -z "$LATEST_BACKUP" ]]; then
                   echo "No backup found in ${REMOTE_DIR}"
                   exit 0
               fi
 
-              parent_dir=$(dirname "/tmp/${LATEST_BACKUP}")
-
-              mkdir -p $parent_dir
-
+              # Download latest backup
               echo "Downloading ${LATEST_BACKUP} from ${REMOTE_DIR}..."
-
-              aws s3 sync "s3://${S3_BUCKET}/${LATEST_BACKUP}" /tmp/${LATEST_BACKUP}
-
-              # Apply Ghost dump
-              echo "Importing Ghost dump..."
-              cp -R /tmp/${LATEST_BACKUP} {{ .Values.ghost.mount }}
+              aws s3 cp "s3://${S3_BUCKET}/${LATEST_BACKUP}/content/" {{ .Values.ghost.mount }} --recursive
           volumeMounts:
             - mountPath: {{ .Values.ghost.mount }}
               name: ghost-content

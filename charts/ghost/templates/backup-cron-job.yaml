@@ -101,7 +101,7 @@ spec:
                   cp -r {{ .Values.ghost.mount }} ${LOCAL_DIR}/${DATE_FORMAT}/
                   rm -rf ${LOCAL_DIR}/${DATE_FORMAT}/content/logs ${LOCAL_DIR}/${DATE_FORMAT}/content/themes/casper
 
-                  aws s3 sync ${LOCAL_DIR}/${DATE_FORMAT}/ "s3://${S3_BUCKET}/${BUCKET_GHOST_PATH}/${DATE_FORMAT}/"
+                  aws s3 cp ${LOCAL_DIR}/${DATE_FORMAT}/ "s3://${S3_BUCKET}/${BUCKET_GHOST_PATH}/${DATE_FORMAT}/" --recursive
 
                   # delete local backup
                   rm -rf ${LOCAL_DIR}
