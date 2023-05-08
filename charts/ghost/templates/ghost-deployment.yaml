@@ -170,8 +170,8 @@ spec:
               fi
 
               # Download latest backup
-              echo "Downloading ${LATEST_BACKUP} from ${REMOTE_DIR}..."
-              aws s3 cp "s3://${S3_BUCKET}/${LATEST_BACKUP}/content/" {{ .Values.ghost.mount }} --recursive
+              echo "Downloading ${REMOTE_DIR}${LATEST_BACKUP}/content/ from ${REMOTE_DIR}..."
+              aws s3 cp ${REMOTE_DIR}${LATEST_BACKUP}/content/ {{ .Values.ghost.mount }} --recursive
           volumeMounts:
             - mountPath: {{ .Values.ghost.mount }}
               name: ghost-content
