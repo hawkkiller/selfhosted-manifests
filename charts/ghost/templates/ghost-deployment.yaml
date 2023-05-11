@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ .Release.Name }}-ghost
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ .Release.Name }}-ghost
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ .Release.Name }}-ghost
     spec:
       initContainers:
         - name: mysql-wait
