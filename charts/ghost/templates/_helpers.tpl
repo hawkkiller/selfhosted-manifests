@@ -9,3 +9,11 @@
 {{- define "mysql.host" -}}
 {{ .Release.Name }}-mysql.{{ .Release.Namespace }}.svc.cluster.local
 {{- end -}}
+
+{{- define "ghost.fullName" -}}
+{{ .Release.Name }}-ghost
+{{- end -}}
+
+{{- define "ghost.serviceName" -}}
+{{ .Release.Name }}-ghost-service
+{{- end -}}

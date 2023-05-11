@@ -6,11 +6,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-ghost
+      app: {{ include "ghost.fullName" .}}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-ghost
+        app: {{ include "ghost.fullName" .}}
     spec:
       initContainers:
         - name: mysql-wait
