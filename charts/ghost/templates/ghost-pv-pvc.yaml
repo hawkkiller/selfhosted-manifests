@@ -6,7 +6,7 @@ spec:
   capacity:
     storage: {{ .Values.ghost.storage }}
   local:
-    path: {{ .Values.mysql.mount }}
+    path: {{ .Values.ghost.mount }}
   persistentVolumeReclaimPolicy: Retain
   accessModes:
     - ReadWriteMany
@@ -25,7 +25,7 @@ metadata:
   name: {{ .Release.Name }}-ghost-volume-claim
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   resources:
     requests:
       storage: {{ .Values.ghost.storage }}
