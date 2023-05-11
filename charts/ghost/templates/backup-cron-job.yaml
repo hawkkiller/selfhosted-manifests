@@ -14,6 +14,8 @@ spec:
           containers:
             - name: backup
               image: amazon/aws-cli
+              labels:
+                app: {{ .Release.Name }}
               env:
                 - name: S3_REGION
                   valueFrom:

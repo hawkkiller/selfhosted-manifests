@@ -5,13 +5,13 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-mysql
+      app: {{ .Release.Name }}
   serviceName: {{ .Release.Name }}-mysql
   template:
     metadata:
       name: {{ .Release.Name }}-mysql
       labels:
-        app: {{ .Release.Name }}-mysql
+        app: {{ .Release.Name }}
     spec:
       containers:
         - name: {{ .Release.Name }}-mysql
