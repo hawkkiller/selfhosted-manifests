@@ -9,13 +9,14 @@ spec:
     spec:
       ttlSecondsAfterFinished: {{ .Values.backup.ttlSecondsAfterFinished }}
       template:
+        metadata:
+          labels:
+            app: {{ .Release.Name }}
         spec:
           restartPolicy: Never
           containers:
             - name: backup
               image: amazon/aws-cli
-              labels:
-                app: {{ .Release.Name }}
               env:
                 - name: S3_REGION
                   valueFrom:
