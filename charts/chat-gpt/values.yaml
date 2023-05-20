@@ -1,13 +1,28 @@
-container:
-  replicaCount: 1
-  port: 80
-  image: yidadaa/chatgpt-next-web
-  imageTag: v1.9.9
-  imagePullPolicy: Always
+# default values for chat-gpt-next-web
+image:
+  repository: yidadaa/chatgpt-next-web
+  tag: "v2.5"
+  pullPolicy: Always
 
 service:
   type: ClusterIP
   port: 80
   portName: http
-
+  
+ingress:
+  enabled: false
+  annotations: {}
+  className: nginx
+  # hosts:
+  #   - host: example.com
+  #     paths:
+  #       - path: /
+  #         pathType: Prefix
+  hosts: []
+  tls: []
+  
+  
 resources: {}
+# requests:
+#   cpu: 10m
+#   memory: 32Mi

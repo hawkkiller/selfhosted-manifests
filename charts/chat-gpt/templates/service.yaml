@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: chat-gpt
+  name: {{ include "chat-gpt.service.name" . }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -10,4 +10,4 @@ spec:
       targetPort: http
       protocol: TCP
   selector:
-    app: chat-gpt
+    app: {{ include "chat-gpt.container.name" . }}

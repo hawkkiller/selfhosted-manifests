@@ -1,26 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: chat-gpt
-  labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+  name: {{ include "chat-gpt.container.name" . | quote }}
 spec:
   selector:
     matchLabels:
-      app: chat-gpt
-  replicas: {{ default 1 .Values.container.replicaCount | int }}
+      app: {{ include "chat-gpt.container.name" . | quote }}
   template:
     metadata:
       labels:
-        app: chat-gpt
+        app: {{ include "chat-gpt.container.name" . | quote }}
     spec:
       containers:
-        - name: {{ .Chart.Name }}
-          image: {{ .Values.container.image }}:{{ .Values.container.imageTag }}
-          imagePullPolicy: {{ .Values.container.imagePullPolicy }}
+        - name: {{ include "chat-gpt.container.name" . | quote }}
+          image: {{ include "chat-gpt.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.container.port | int }}
+              containerPort: {{ include "chat-gpt.container.port" . | int }}
               protocol: TCP
           resources:
 {{ toYaml .Values.resources | indent 12 }}
