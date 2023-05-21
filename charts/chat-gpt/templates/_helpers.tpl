@@ -3,7 +3,7 @@
 {{- end }}
 
 {{- define "chat-gpt.container.port" -}}
-80
+3000
 {{- end }}
 
 {{- define "chat-gpt.container.name" -}}
