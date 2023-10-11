@@ -45,6 +45,15 @@ jobs:
         run: |
           version=$(grep ${{ matrix.image.image }} dockerfiles/VERSION | cut -d'=' -f2)
           echo "::set-output name=version::$version"
+
+      - name: Generate images meta
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ matrix.image.image }}
+          tags: |
+            type=raw,value=${{ steps.get_version.outputs.version }}
+            type=raw,value=latest
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
@@ -52,7 +61,5 @@ jobs:
           context: .
           file: ./dockerfiles/${{ matrix.image.dockerfile }}
           push: true
-          tags: |
-            type=raw,value=${{ steps.get_version.outputs.version }}
-            type=raw,value=latest
+          tags: ${{ steps.meta.outputs.tags }}
   
