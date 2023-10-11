@@ -1,3 +1,2 @@
-mysql_aws=0.0.1
 mysql_s3_apply_dump=0.0.1
 mysql_s3_upload_dump=0.0.1

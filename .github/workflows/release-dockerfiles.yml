@@ -16,10 +16,8 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [mysql_aws, mysql_s3_apply_dump, mysql_s3_upload_dump] 
+        image: [mysql_s3_apply_dump, mysql_s3_upload_dump] 
         include:
-          - dockerfile: 'mysql_aws.Dockerfile'
-            image: mysql_aws
           - dockerfile: 'mysql_s3_apply_dump.Dockerfile'
             image: mysql_s3_apply_dump
           - dockerfile: 'mysql_s3_upload_dump.Dockerfile'
