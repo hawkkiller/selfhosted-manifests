@@ -53,6 +53,6 @@ jobs:
           file: ./dockerfiles/${{ matrix.image.dockerfile }}
           push: true
           tags: |
-            type=raw,value=ghcr.io/${{ github.repository }}/${{ matrix.image.image }}:${{ steps.get_version.outputs.version }}
-            type=raw,value=ghcr.io/${{ github.repository }}/${{ matrix.image.image }}:latest
+            type=raw,value=${{ steps.get_version.outputs.version }}
+            type=raw,value=latest
   
