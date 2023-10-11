@@ -1,0 +1,48 @@
+name: Release Dockerfiles
+
+permissions:
+  contents: write # write releases
+  id-token: write
+  packages: write # write packages
+
+on:
+  push:
+    paths: 
+      - 'dockerfiles/**'
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image: ['mysql_aws', 'mysql_s3_apply_dump', 'mysql_s3_upload_dump']
+        dockerfile: ['mysql_aws.Dockerfile', 'mysql_s3_apply_dump.Dockerfile', 'mysql_s3_upload_dump.Dockerfile']
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Version
+        id: get_version
+        run: |
+          version=$(grep ${{ matrix.image }} dockerfiles/VERSION | cut -d'=' -f2)
+          echo "::set-output name=version::$version"
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./dockerfiles/${{ matrix.dockerfile }}
+          push: true
+          tags: ghcr.io/${{ github.repository }}/${{ matrix.dockerfile }}:latest
+  

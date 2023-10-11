@@ -234,13 +234,3 @@ spec:
         - name: ghost-content
           persistentVolumeClaim:
             claimName: "{{ .Release.Name }}-ghost-volume-claim"
-{{/*  apps*/}}
-{{/*  data*/}}
-{{/*  files*/}}
-{{/*  images*/}}
-{{/*  logs*/}}
-{{/*  lost+found*/}}
-{{/*  media*/}}
-{{/*  public*/}}
-{{/*  settings*/}}
-{{/*  themes*/}}
