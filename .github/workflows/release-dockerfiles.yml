@@ -16,8 +16,16 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: ['mysql_aws', 'mysql_s3_apply_dump', 'mysql_s3_upload_dump']
-        dockerfile: ['mysql_aws.Dockerfile', 'mysql_s3_apply_dump.Dockerfile', 'mysql_s3_upload_dump.Dockerfile']
+        image: 
+          - mysql_aws:
+              image: mysql_aws
+              dockerfile: 'mysql_aws.Dockerfile'
+          - mysql_s3_apply_dump:
+              image: mysql_s3_apply_dump
+              dockerfile: 'mysql_s3_apply_dump.Dockerfile'
+          - mysql_s3_upload_dump:
+              image: mysql_s3_upload_dump
+              dockerfile: 'mysql_s3_upload_dump.Dockerfile'
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -35,14 +43,14 @@ jobs:
       - name: Get Version
         id: get_version
         run: |
-          version=$(grep ${{ matrix.image }} dockerfiles/VERSION | cut -d'=' -f2)
+          version=$(grep ${{ matrix.image.image }} dockerfiles/VERSION | cut -d'=' -f2)
           echo "::set-output name=version::$version"
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./dockerfiles/${{ matrix.dockerfile }}
+          file: ./dockerfiles/${{ matrix.image.dockerfile }}
           push: true
-          tags: ghcr.io/${{ github.repository }}/${{ matrix.dockerfile }}:latest
+          tags: ghcr.io/${{ github.repository }}/${{ matrix.image.image }}:latest
   
