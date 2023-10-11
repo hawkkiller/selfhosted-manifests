@@ -16,16 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: 
-          - mysql_aws:
-              image: mysql_aws
-              dockerfile: 'mysql_aws.Dockerfile'
-          - mysql_s3_apply_dump:
-              image: mysql_s3_apply_dump
-              dockerfile: 'mysql_s3_apply_dump.Dockerfile'
-          - mysql_s3_upload_dump:
-              image: mysql_s3_upload_dump
-              dockerfile: 'mysql_s3_upload_dump.Dockerfile'
+        image: [mysql_aws, mysql_s3_apply_dump, mysql_s3_upload_dump] 
+        include:
+          - dockerfile: 'mysql_aws.Dockerfile'
+            image: mysql_aws
+          - dockerfile: 'mysql_s3_apply_dump.Dockerfile'
+            image: mysql_s3_apply_dump
+          - dockerfile: 'mysql_s3_upload_dump.Dockerfile'
+            image: mysql_s3_upload_dump
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -43,14 +41,14 @@ jobs:
       - name: Get Version
         id: get_version
         run: |
-          version=$(grep ${{ matrix.image.image }} dockerfiles/VERSION | cut -d'=' -f2)
+          version=$(grep ${{ matrix.image }} dockerfiles/VERSION | cut -d'=' -f2)
           echo "::set-output name=version::$version"
 
       - name: Generate images meta
         id: meta
         uses: docker/metadata-action@v4
         with:
-          images: ${{ matrix.image.image }}
+          images: ${{ matrix.image }}
           tags: |
             type=raw,value=${{ steps.get_version.outputs.version }}
             type=raw,value=latest
@@ -59,7 +57,7 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./dockerfiles/${{ matrix.image.dockerfile }}
+          file: ./dockerfiles/${{ matrix.dockerfile }}
           push: true
           tags: ${{ steps.meta.outputs.tags }}
   
