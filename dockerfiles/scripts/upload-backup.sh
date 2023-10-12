@@ -44,8 +44,8 @@ create_backup() {
     --single-transaction "${MYSQL_DATABASE}" | gzip -9 >"${local_backup_sql}"
 
   # copy ghost content to backup folder
-  echo "Copying ghost content to backup folder"
-  ls -la "${GHOST_CONTENT_PATH}"
+  echo "Copying ghost content to backup folder from ${GHOST_CONTENT_PATH}"
+  pwd
   cp -r -L "${GHOST_CONTENT_PATH}" "${local_backup_folder}"
 }
 
