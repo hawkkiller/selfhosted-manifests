@@ -4,6 +4,7 @@ on:
   push:
     paths: 
       - 'charts/**'
+      - '.github/workflows/release-charts.yml'
     branches:
       - main
 
