@@ -21,6 +21,8 @@ set -e
 
 tmp_backup="/tmp/backup"
 
+mkdir -p "${tmp_backup}"
+
 check_mysql_installation() {
   mysql --version
 }
