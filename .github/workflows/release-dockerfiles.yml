@@ -61,7 +61,7 @@ jobs:
           sbom: true
           provenance: true
           context: ./dockerfiles
-          platforms: linux/amd64,linux/arm/v7,linux/arm64
+          platforms: linux/amd64,linux/arm64/v8
           builder: ${{ steps.buildx.outputs.name }}
           file: ./dockerfiles/${{ matrix.dockerfile }}
           tags: ${{ steps.meta.outputs.tags }}
