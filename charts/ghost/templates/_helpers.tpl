@@ -17,3 +17,7 @@
 {{- define "ghost.serviceName" -}}
 {{ .Release.Name }}-ghost-service
 {{- end -}}
+
+{{- define "backup.image" -}}
+{{ .Values.backup.image.repository }}:{{ .Values.backup.image.tag }}
+{{- end -}}

@@ -16,7 +16,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: upload-backup
-              image: {{ .Values.backup.image }}
+              image: {{ include "backup.image" . }}
               env:
                 - name: S3_REGION
                   valueFrom:
