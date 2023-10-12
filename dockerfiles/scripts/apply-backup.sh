@@ -27,7 +27,6 @@ check_mysql_installation() {
   mysql --version
 }
 
-
 download_backup() {
   local latest_backup
   latest_backup=$(aws s3 ls "s3://${S3_BUCKET}/${BACKUP_PATH}/" | sort | tail -n 1 | awk '{print $4}')

@@ -44,6 +44,7 @@ create_backup() {
     --single-transaction "${MYSQL_DATABASE}" | gzip -9 >"${local_backup_sql}"
 
   # copy ghost content to backup folder
+  echo "Copying ghost content to backup folder"
   cp -r -L "${GHOST_CONTENT_PATH}" "${local_backup_folder}"
 }
 
@@ -52,6 +53,7 @@ upload_to_s3() {
   remote_dir="s3://${S3_BUCKET}/${BACKUP_PATH}/${date_format}"
 
   # Copy backups to S3
+  echo "Uploading backup to S3"
   aws s3 cp "${local_backup_folder}" "${remote_dir}" --recursive
 }
 
@@ -63,6 +65,7 @@ clean_old_s3_backups() {
   local oldest_date
   oldest_date=$(date -d "-${RETENTION_DAYS} days" +%Y-%m-%d)
 
+  echo "Cleaning old backups from S3"
   aws s3api list-objects --bucket "${S3_BUCKET}" --query "Contents[?LastModified<='${oldest_date}'].{Key: Key}" --output text | while read -r object_key; do
     aws s3 rm "s3://${S3_BUCKET}/${object_key}"
   done
