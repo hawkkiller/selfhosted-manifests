@@ -54,6 +54,7 @@ upload_to_s3() {
 
   # Copy backups to S3
   echo "Uploading backup to S3"
+  ls -la
   aws s3 cp "${local_backup_folder}" "${remote_dir}" --recursive
 }
 
