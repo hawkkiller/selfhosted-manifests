@@ -7,8 +7,8 @@ RUN yum -y install \
     https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm \
     mysql-community-client
 # Copy necessary scripts and files
-COPY scripts/upload_dump.sh /upload_dump.sh
+COPY scripts/upload-dump.sh ./scripts/upload-dump.sh
 
-RUN chmod +x /upload_dump.sh
+RUN chmod +x ./scripts/upload-dump.sh
 
-CMD ["upload_dump.sh"]
+CMD ["./scripts/upload-dump.sh"]
