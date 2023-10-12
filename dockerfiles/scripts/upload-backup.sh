@@ -45,6 +45,7 @@ create_backup() {
 
   # copy ghost content to backup folder
   echo "Copying ghost content to backup folder"
+  ls -la
   cp -r -L "${GHOST_CONTENT_PATH}" "${local_backup_folder}"
 }
 
