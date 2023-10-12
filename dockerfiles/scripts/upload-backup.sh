@@ -45,7 +45,7 @@ create_backup() {
 
   # copy ghost content to backup folder
   echo "Copying ghost content to backup folder"
-  ls -la
+  ls -la "${GHOST_CONTENT_PATH}"
   cp -r -L "${GHOST_CONTENT_PATH}" "${local_backup_folder}"
 }
 
@@ -55,7 +55,7 @@ upload_to_s3() {
 
   # Copy backups to S3
   echo "Uploading backup to S3"
-  ls -la
+  ls -la "${local_backup_folder}"
   aws s3 cp "${local_backup_folder}" "${remote_dir}" --recursive
 }
 
