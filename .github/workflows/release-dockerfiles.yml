@@ -17,12 +17,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        image: [mysql_s3_apply_dump, mysql_s3_upload_dump] 
-        include:
-          - dockerfile: 'mysql_s3_apply_dump.Dockerfile'
-            image: mysql_s3_apply_dump
-          - dockerfile: 'mysql_s3_upload_dump.Dockerfile'
-            image: mysql_s3_upload_dump
+        image: [ghost-backup]
     steps:
       - name: Check out code
         uses: actions/checkout@v3
@@ -63,7 +58,7 @@ jobs:
           context: ./dockerfiles
           platforms: linux/amd64,linux/arm64/v8
           builder: ${{ steps.buildx.outputs.name }}
-          file: ./dockerfiles/${{ matrix.dockerfile }}
+          file: ./dockerfiles/${{ matrix.image }}.Dockerfile
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
   

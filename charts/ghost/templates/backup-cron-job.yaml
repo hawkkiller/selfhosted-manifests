@@ -15,8 +15,8 @@ spec:
         spec:
           restartPolicy: Never
           containers:
-            - name: backup
-              image: amazon/aws-cli
+            - name: upload-backup
+              image: {{ .Values.backup.image }}
               env:
                 - name: S3_REGION
                   valueFrom:
@@ -47,75 +47,17 @@ spec:
                     secretKeyRef:
                       name: {{ .Values.mysql.connection.privateSecretRef }}
                       key: mysql-root-password
-                - name: RETENTION_DAYS
-                  value: "{{ .Values.backup.retentionDays }}"
                 - name: MYSQL_DATABASE
                   valueFrom:
                     secretKeyRef:
                       name: {{ .Values.mysql.connection.privateSecretRef }}
                       key: mysql-database
-                - name: BUCKET_MYSQL_PATH
-                  value: "{{- .Values.backup.mysqlPath -}}"
-                - name: BUCKET_GHOST_PATH
-                  value: "{{- .Values.backup.ghostPath -}}"
-              command:
-                - /bin/sh
-                - -c
-                - |
-                  #!/bin/sh
-
-                  set -e
-                  cat /etc/os-release
-
-                  # install tar, gzip
-                  yum -y install tar gzip
-
-                  # Install the MySQL Community Repo for mysqldump
-                  yum -y install https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm
-
-                  # Install the mysqldump package
-                  yum -y install mysql-community-client
-
-                  # Check if mysql is successfully installed
-                  mysql --version
-
-                  DATE_FORMAT=$(date +"%Y-%m-%d-%H-%M-%S")
-
-                  # local backup dir
-                  LOCAL_DIR="/backup/dbbackup"
-
-                  # remote backup dir
-                  REMOTE_DIR="s3://${S3_BUCKET}/${BUCKET_MYSQL_PATH}"
-
-                  # create dir
-                  mkdir -p ${LOCAL_DIR}/${DATE_FORMAT}
-
-                  # create dump
-                  mysqldump \
-                      -h ${MYSQL_HOST} \
-                      -u ${MYSQL_USER} \
-                      -p${MYSQL_PASSWORD} \
-                      --single-transaction ${MYSQL_DATABASE} | gzip -9 > ${LOCAL_DIR}/${MYSQL_DATABASE}-${DATE_FORMAT}.sql.gz
-
-                  # copy to aws s3
-                  aws s3 cp ${LOCAL_DIR}/${MYSQL_DATABASE}-${DATE_FORMAT}.sql.gz ${REMOTE_DIR}/${DATE_FORMAT}/
-
-                  # copy everything from ghost content directory except logs, themes
-                  cp -r {{ .Values.ghost.mount }} ${LOCAL_DIR}/${DATE_FORMAT}/
-                  rm -rf ${LOCAL_DIR}/${DATE_FORMAT}/content/logs ${LOCAL_DIR}/${DATE_FORMAT}/content/themes/casper
-
-                  aws s3 cp ${LOCAL_DIR}/${DATE_FORMAT}/ "s3://${S3_BUCKET}/${BUCKET_GHOST_PATH}/${DATE_FORMAT}/" --recursive
-
-                  # delete local backup
-                  rm -rf ${LOCAL_DIR}
-
-                  # delete old backups from aws
-                  OLDEST_DATE=$(date -d "-${RETENTION_DAYS} days" +%Y-%m-%d)
-                  
-                  aws s3api list-objects --bucket "${S3_BUCKET}" --query "Contents[?LastModified<='${OLDEST_DATE}'].{Key: Key}" --output text | while read -r object_key; do
-                    aws s3 rm "s3://${S3_BUCKET}/${object_key}"
-                  done
-
+                - name: RETENTION_DAYS
+                  value: "{{ .Values.backup.retentionDays }}"
+                - name: BACKUP_PATH
+                  value: "{{ .Values.backup.backupPath }}"
+                - name: DIRS_TO_BACKUP
+                  value: "{{ .Values.ghost.mount }}"
               volumeMounts:
                 - mountPath: {{ .Values.ghost.mount }}
                   name: ghost-content
