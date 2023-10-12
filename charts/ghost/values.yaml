@@ -57,5 +57,5 @@ backup:
   backupPath: backup # subdir path
   image:
     repository: ghcr.io/hawkkiller/ghost-backup
-    tag: 0.1.0
+    tag: 0.1.1
     pullPolicy: IfNotPresent
