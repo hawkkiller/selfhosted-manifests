@@ -27,9 +27,16 @@ check_mysql_installation() {
   mysql --version
 }
 
+
 download_backup() {
   local latest_backup
   latest_backup=$(aws s3 ls "s3://${S3_BUCKET}/${BACKUP_PATH}/" | sort | tail -n 1 | awk '{print $4}')
+
+  # break if no backup found
+  if [ -z "${latest_backup}" ]; then
+    echo "No backup found"
+    exit 0
+  fi
 
   aws s3 cp "s3://${S3_BUCKET}/${BACKUP_PATH}/${latest_backup}" "${tmp_backup}" --recursive
 }
