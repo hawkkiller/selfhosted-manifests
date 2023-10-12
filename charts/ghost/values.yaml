@@ -55,7 +55,6 @@ backup:
   retentionDays: 10
   ttlSecondsAfterFinished: 86400 # 1 day
   backupPath: backup # subdir path
-  dirs: "/var/lib/ghost/content"
   image:
     repository: ghcr.io/hawkkiller/ghost-backup
     tag: 0.0.1

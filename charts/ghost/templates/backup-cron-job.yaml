@@ -56,8 +56,8 @@ spec:
                   value: "{{ .Values.backup.retentionDays }}"
                 - name: BACKUP_PATH
                   value: "{{ .Values.backup.backupPath }}"
-                - name: DIRS_TO_BACKUP
-                  value: "{{ .Values.backup.dirs }}"
+                - name: GHOST_CONTENT_PATH
+                  value: "{{ .Values.ghost.mount }}"
               volumeMounts:
                 - mountPath: {{ .Values.ghost.mount }}
                   name: ghost-content

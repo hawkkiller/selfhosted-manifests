@@ -8,12 +8,12 @@ RUN yum -y install \
     mysql-community-client
 
 # Copy necessary scripts and files
-COPY scripts/upload-dump.sh ./scripts/upload-dump.sh
-COPY scripts/apply-dump.sh ./scripts/apply-dump.sh
+COPY scripts/upload-backup.sh ./scripts/upload-backup.sh
+COPY scripts/apply-backup.sh ./scripts/apply-backup.sh
 
 # Set executable permissions
-RUN chmod +x ./scripts/upload-dump.sh
-RUN chmod +x ./scripts/apply-dump.sh
+RUN chmod +x ./scripts/upload-backup.sh
+RUN chmod +x ./scripts/apply-backup.sh
 
 # Default command (if none is provided)
-CMD ["./scripts/upload-dump.sh"]
+CMD ["./scripts/upload-backup.sh"]

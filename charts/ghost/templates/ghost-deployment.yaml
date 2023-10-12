@@ -27,12 +27,14 @@ spec:
               #!/bin/sh
               until echo "SELECT 1" | nc -w 1 ${MYSQL_HOST} ${MYSQL_PORT}>/dev/null; do
                 echo "MySQL is not running yet"
-                sleep 3
+                sleep 1
               done
 
               echo "MySQL is running"
-        - name: mysql-apply-dump
-          image: amazon/aws-cli
+        - name: ghost-apply-backup
+          image: {{ include "backup.image" . }}
+          command:
+            - ./scripts/apply-backup.sh
           env:
             - name: S3_REGION
               valueFrom:
@@ -71,107 +73,11 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.mysql.connection.privateSecretRef }}
                   key: mysql-database
-            - name: GHOST_TABLE_NAME
-              value: permissions
-          command:
-            - sh
-            - -c
-            - |
-              #!/bin/sh
+            - name: BACKUP_PATH
+              value: {{ .Values.backup.backupPath }}
+            - name: GHOST_CONTENT_PATH
+              value: {{ .Values.ghost.mount }}
 
-              # install tar, gzip
-              yum -y install tar gzip
-
-              # Install the MySQL Community Repo for mysqldump
-              yum -y install https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm
-
-              # Install the mysqldump package
-              yum -y install mysql-community-client
-
-              # Check if table exists
-              query="SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${MYSQL_DATABASE}' AND table_name='${GHOST_TABLE_NAME}';"
-              table_exists=$(mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} -h ${MYSQL_HOST} -e "$query" --skip-column-names)
-
-              apply_dump=0
-
-              if [[ $table_exists -eq 1 ]]; then
-                echo "Table ${GHOST_TABLE_NAME} exists, skipping MySQL dump import..."
-                exit 0
-              else
-                apply_dump=1
-              fi
-
-              # Apply MySQL dump if necessary
-              if [[ $apply_dump -eq 1 ]]; then
-                echo "Importing MySQL dump..."
-                # Remote backup directory
-                REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.backup.mysqlPath -}}"
-
-                # Download latest backup
-                LATEST_BACKUP=$(aws s3 ls ${REMOTE_DIR} --recursive | sort | tail -n 1 | awk '{print $4}')
-
-                if [[ -z "$LATEST_BACKUP" ]]; then
-                  echo "No backup found in ${REMOTE_DIR}"
-                  exit 0
-                fi
-
-                parent_dir=$(dirname "/tmp/${LATEST_BACKUP}")
-
-                mkdir -p $parent_dir
-
-                echo "Downloading ${LATEST_BACKUP} from ${REMOTE_DIR}..."
-
-                aws s3 cp "s3://${S3_BUCKET}/${LATEST_BACKUP}" /tmp/${LATEST_BACKUP}
-
-                # MySQL data does not exist, apply the dump
-                gunzip < /tmp/${LATEST_BACKUP} | mysql -u ${MYSQL_USER} -p${MYSQL_PASSWORD} ${MYSQL_DATABASE}
-
-                # Remove the dump file
-                rm /tmp/${LATEST_BACKUP}
-                echo "MySQL dump imported successfully."
-              fi
-        - name: ghost-apply-dump
-          image: amazon/aws-cli
-          env:
-            - name: S3_REGION
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backup.awsSecretRef }}
-                  key: S3_REGION
-            - name: S3_BUCKET
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backup.awsSecretRef }}
-                  key: S3_BUCKET
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backup.awsSecretRef }}
-                  key: S3_ACCESS_KEY_ID
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ .Values.backup.awsSecretRef }}
-                  key: S3_SECRET_ACCESS_KEY
-          command:
-            - sh
-            - -c
-            - |
-              #!/bin/sh
-
-              REMOTE_DIR="s3://${S3_BUCKET}/{{- .Values.backup.ghostPath -}}"
-
-              # find latest backup folder in REMOTE_DIR
-              LATEST_BACKUP=$(aws s3 ls ${REMOTE_DIR} --recursive | sort -r | grep -m1 -oE "$PREFIX/[0-9-]{19}")
-
-              if [[ -z "$LATEST_BACKUP" ]]; then
-                  echo "No backup found in ${REMOTE_DIR}"
-                  exit 0
-              fi
-
-              # Download latest backup
-              echo "Downloading ${REMOTE_DIR}${LATEST_BACKUP}/content/ from ${REMOTE_DIR}..."
-              aws s3 cp ${REMOTE_DIR}${LATEST_BACKUP}/content/ {{ .Values.ghost.mount }} --recursive
           volumeMounts:
             - mountPath: {{ .Values.ghost.mount }}
               name: ghost-content
