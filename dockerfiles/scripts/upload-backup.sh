@@ -10,7 +10,7 @@
 # MYSQL_DATABASE - name of the database to backup
 # RETENTION_DAYS - number of days to keep backups
 # BACKUP_PATH - path to store backups in S3 bucket
-# GHOST_CONTENT_PATH - path to ghost content folder (/var/lib/ghost/content)
+# GHOST_PATH - path to ghost content folder (/var/lib/ghost)
 
 # Algorithm:
 
@@ -44,9 +44,8 @@ create_backup() {
     --single-transaction "${MYSQL_DATABASE}" | gzip -9 >"${local_backup_sql}"
 
   # copy ghost content to backup folder
-  echo "Copying ghost content to backup folder from ${GHOST_CONTENT_PATH}"
-  pwd
-  cp -r -L "${GHOST_CONTENT_PATH}" "${local_backup_folder}"
+  echo "Copying ghost content to backup folder from ${GHOST_PATH}/content"
+  cp -r -L "${GHOST_PATH}/content" "${local_backup_folder}"
 }
 
 upload_to_s3() {
@@ -55,7 +54,6 @@ upload_to_s3() {
 
   # Copy backups to S3
   echo "Uploading backup to S3"
-  ls -la "${local_backup_folder}"
   aws s3 cp "${local_backup_folder}" "${remote_dir}" --recursive
 }
 

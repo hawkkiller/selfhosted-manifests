@@ -75,7 +75,7 @@ spec:
                   key: mysql-database
             - name: BACKUP_PATH
               value: {{ .Values.backup.backupPath }}
-            - name: GHOST_CONTENT_PATH
+            - name: GHOST_PATH
               value: {{ .Values.ghost.mount }}
 
           volumeMounts:

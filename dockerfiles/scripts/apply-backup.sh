@@ -9,7 +9,8 @@
 # MYSQL_PASSWORD - password for MYSQL_USER
 # MYSQL_DATABASE - name of the database to backup
 # BACKUP_PATH - path to store backups in S3 bucket
-# GHOST_CONTENT_PATH - path to ghost content folder
+# GHOST_PATH - path to ghost content folder (/var/lib/ghost)
+
 
 # Algorithm:
 
@@ -45,7 +46,7 @@ restore_backup() {
   gunzip <"${tmp_backup}/${MYSQL_DATABASE}-*.sql.gz" | mysql -h "${MYSQL_HOST}" -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" "${MYSQL_DATABASE}"
 
   # Restore ghost content from backup
-  cp -r -L "${tmp_backup}/content" "${GHOST_CONTENT_PATH}"
+  cp -r -L "${tmp_backup}/content" "${GHOST_PATH}/content"
 }
 
 clean_tmp_backup() {

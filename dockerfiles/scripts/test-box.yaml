@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: busy
+  labels:
+    app: busy
+spec:
+  containers:
+    - name: busy
+      image: busybox:1.36
+      imagePullPolicy: IfNotPresent
+      command: ["sleep", "3600"]
+      volumeMounts:
+        - mountPath: /var/lib/ghost
+          name: ghost-content
+  volumes:
+    - name: ghost-content
+      persistentVolumeClaim:
+        claimName: "ghost-ghost-volume-claim"
+  restartPolicy: Always
+  

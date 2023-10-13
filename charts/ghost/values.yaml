@@ -3,7 +3,7 @@ ghost:
   timezone: UTC
   url: https://themisha.dev
   storage: 1Gi
-  mount: /var/lib/ghost/content
+  mount: /var/lib/ghost
   ingress:
     enabled: false
     annotations: {}
@@ -15,7 +15,7 @@ ghost:
             pathType: Prefix
   image:
     repository: ghost
-    tag: 5.68.0-alpine
+    tag: 5.69.0
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
