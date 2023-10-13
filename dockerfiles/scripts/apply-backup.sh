@@ -42,7 +42,7 @@ download_backup() {
 
 restore_backup() {
   # Restore ghost content from backup
-  rsync -avz "${tmp_backup}/content" "${GHOST_PATH}/content"
+  rsync -avz "${tmp_backup}/content" "${GHOST_PATH}/"
 
   # Check if database already contains data
   if [ "$(mysql -h "${MYSQL_HOST}" -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" "${MYSQL_DATABASE}" -e "SHOW TABLES;" | wc -l)" -gt 0 ]; then
