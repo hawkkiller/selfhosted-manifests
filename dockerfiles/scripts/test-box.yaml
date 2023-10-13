@@ -9,18 +9,13 @@ spec:
     - name: busy
       image: busybox:1.36
       imagePullPolicy: IfNotPresent
-      command: ["sleep", "3600"]
+      command: ["sleep", "10d"]
       volumeMounts:
         - mountPath: /var/lib/ghost/content
           name: ghost-content
-        - mountPath: /var/lib/ghost/current
-          name: ghost-current
   volumes:
     - name: ghost-content
       persistentVolumeClaim:
-        claimName: "ghost-ghost-volume-claim"
-    - name: ghost-current
-      persistentVolumeClaim:
-        claimName: "ghost-ghost-volume-claim"
+        claimName: "ghost-ghost-content-claim"
   restartPolicy: Always
   
