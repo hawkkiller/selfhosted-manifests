@@ -52,23 +52,7 @@ create_backup() {
   # Skip fail symlinks (because they could point to a volume that is not mounted)
   # Copy ghost content to backup folder
   # Use find to iterate over all files and folders in the source directory
-  find "$content_ghost" -mindepth 1 -depth -print | while read -r item; do
-      # Check if the item is a symlink
-      if [ -L "$item" ]; then
-          # Check if the symlink is valid
-          if [ -e "$item" ]; then
-              # Copy the symlink preserving the link
-              cp -d "$item" "$dest_ghost"
-          else
-              # Log an error message for broken symlinks and continue
-              echo "Warning: Broken symlink skipped: $item" >&2
-              continue
-          fi
-      else
-          # Handle regular files and directories
-          cp -r "$item" "$dest_ghost"
-      fi
-  done
+  find "$content_ghost" -type d -depth 1 -exec cp -r -- '{}' "$dest_ghost" \;
 }
 
 upload_to_s3() {
