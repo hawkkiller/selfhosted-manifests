@@ -79,8 +79,10 @@ spec:
               value: {{ .Values.ghost.mount }}
 
           volumeMounts:
-            - mountPath: {{ .Values.ghost.mount }}
+            - mountPath: {{ .Values.ghost.mount }}/content
               name: ghost-content
+            - mountPath: {{ .Values.ghost.mount }}/current
+              name: ghost-current
       containers:
         # Ghost
         - name: {{ .Release.Name }}
@@ -134,8 +136,10 @@ spec:
                   name: {{ .Values.mysql.connection.privateSecretRef }}
                   key: mysql-database
           volumeMounts:
-            - mountPath: {{ .Values.ghost.mount }}
+            - mountPath: {{ .Values.ghost.mount }}/content
               name: ghost-content
+            - mountPath: {{ .Values.ghost.mount }}/current
+              name: ghost-current
       volumes:
         - name: ghost-content
           persistentVolumeClaim:

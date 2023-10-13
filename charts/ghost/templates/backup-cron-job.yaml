@@ -59,8 +59,10 @@ spec:
                 - name: GHOST_PATH
                   value: "{{ .Values.ghost.mount }}"
               volumeMounts:
-                - mountPath: {{ .Values.ghost.mount }}
+                - mountPath: {{ .Values.ghost.mount }}/content
                   name: ghost-content
+                - mountPath: {{ .Values.ghost.mount }}/current
+                  name: ghost-current
           volumes:
             - name: ghost-content
               persistentVolumeClaim:
