@@ -11,7 +11,6 @@
 # BACKUP_PATH - path to store backups in S3 bucket
 # GHOST_PATH - path to ghost content folder (/var/lib/ghost)
 
-
 # Algorithm:
 
 # 1. Download latest backup
@@ -42,11 +41,17 @@ download_backup() {
 }
 
 restore_backup() {
+  # Restore ghost content from backup
+  rsync -avz "${tmp_backup}/content" "${GHOST_PATH}/content"
+
+  # Check if database already contains data
+  if [ "$(mysql -h "${MYSQL_HOST}" -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" "${MYSQL_DATABASE}" -e "SHOW TABLES;" | wc -l)" -gt 0 ]; then
+    echo "Database already contains data"
+    exit 0
+  fi
+
   # Restore database from backup
   gunzip <"${tmp_backup}/${MYSQL_DATABASE}-*.sql.gz" | mysql -h "${MYSQL_HOST}" -u "${MYSQL_USER}" -p"${MYSQL_PASSWORD}" "${MYSQL_DATABASE}"
-
-  # Restore ghost content from backup
-  cp -r -L "${tmp_backup}/content" "${GHOST_PATH}/content"
 }
 
 clean_tmp_backup() {
