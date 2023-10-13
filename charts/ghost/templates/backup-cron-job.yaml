@@ -61,13 +61,8 @@ spec:
               volumeMounts:
                 - mountPath: {{ .Values.ghost.mount }}/content
                   name: ghost-content
-                - mountPath: {{ .Values.ghost.mount }}/current
-                  name: ghost-current
           volumes:
             - name: ghost-content
               persistentVolumeClaim:
-                claimName: "{{ .Release.Name }}-ghost-content-claim"
-            - name: ghost-current
-              persistentVolumeClaim:
-                claimName: "{{ .Release.Name }}-ghost-current-claim"
+                claimName: "{{ .Release.Name }}-ghost-volume-claim"
 {{ end }}
