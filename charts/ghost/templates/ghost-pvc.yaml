@@ -1,7 +1,18 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ .Release.Name }}-ghost-volume-claim
+  name: {{ .Release.Name }}-ghost-content-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.ghost.storage }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ .Release.Name }}-ghost-current-claim
 spec:
   accessModes:
     - ReadWriteOnce
