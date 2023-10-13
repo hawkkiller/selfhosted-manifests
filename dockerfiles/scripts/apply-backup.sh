@@ -62,3 +62,4 @@ check_mysql_installation
 download_backup
 restore_backup
 clean_tmp_backup
+exit 0

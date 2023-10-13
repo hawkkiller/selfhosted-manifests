@@ -84,3 +84,4 @@ create_backup
 upload_to_s3
 clean_local_backup_folders
 clean_old_s3_backups
+exit 0
