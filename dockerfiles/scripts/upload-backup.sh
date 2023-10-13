@@ -43,8 +43,8 @@ create_backup() {
     -p"${MYSQL_PASSWORD}" \
     --single-transaction "${MYSQL_DATABASE}" | gzip -9 >"${local_backup_sql}"
 
-  content_ghost=${GHOST_PATH}/content
-  dest_ghost=${local_backup_folder}/content
+  content_ghost="${GHOST_PATH}/content/"
+  dest_ghost="${local_backup_folder}/content/"
 
   # copy ghost content to backup folder
   echo "Copying ghost content to backup folder from $content_ghost"
@@ -52,7 +52,7 @@ create_backup() {
   # Skip fail symlinks (because they could point to a volume that is not mounted)
   # Copy ghost content to backup folder
   # Use find to iterate over all files and folders in the source directory
-  find "$content_ghost" -type d -depth 1 -exec cp -r -- '{}' "$dest_ghost" \;
+  rsync -a --ignore-errors --no-links --info=progress2 "${content_ghost}" "${dest_ghost}"
 }
 
 upload_to_s3() {
