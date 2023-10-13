@@ -64,5 +64,5 @@ spec:
           volumes:
             - name: ghost-content
               persistentVolumeClaim:
-                claimName: "{{ .Release.Name }}-ghost-volume-claim"
+                claimName: {{ .Release.Name }}-ghost-content-claim
 {{ end }}
