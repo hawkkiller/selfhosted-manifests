@@ -6,7 +6,7 @@ RUN yum -y install tar gzip unzip \
     && yum -y localinstall https://dev.mysql.com/get/mysql80-community-release-el7-7.noarch.rpm \
     && yum -y update \
     && yum -y install mysql-community-client \
-    && yum -y install rsync \
+    && yum -y install rsync
 
 # Install AWS CLI
 RUN curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" \
